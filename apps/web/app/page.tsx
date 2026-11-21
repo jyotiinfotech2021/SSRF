@@ -104,7 +104,6 @@ export default async function Home() {
       <ul className="prose">
         <li><b>Oral histories</b> from veterans of 1961, 1967 and 1971, and from their families. <Link href="/account">Contribute an account</Link>.</li>
         <li><b>Documents and photographs</b>: orders, letters, war diaries, maps and personal photographs, scanned or described. <Link href="/archive">Add to the archive</Link>.</li>
-        <li><b>Page references</b> from <i>A Talent for War</i> for the few accounts still awaiting a second source.</li>
         <li><b>Memorials and honours</b> missing from the <Link href="/recognition">recognition register</Link>, Goa above all.</li>
       </ul>
       <h2 className="sect">Governing body</h2>
