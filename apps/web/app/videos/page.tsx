@@ -5,6 +5,7 @@ import { get, me, canContribute, isEditor, type Book, type Campaign } from "@/li
 import { Unavailable, HistoryPanel } from "@/components/ui";
 import { englishTitle, usefulNote } from "@/lib/text";
 import AutoForm from "@/components/AutoForm";
+import VideoThumb from "@/components/VideoThumb";
 import ContributeForm from "@/components/ContributeForm";
 import CorrectionBox from "@/components/CorrectionBox";
 import { StatusForm, DeleteButton } from "@/components/Interact";
@@ -22,13 +23,7 @@ function VCard({ b, big, ed, signedIn, camps }: { b: Book; big?: boolean; ed: bo
   const meta = [d.creator || d.author, d.year, d.duration].filter(Boolean).join(" · ");
   return (
     <article className={`vcard${big ? " big" : ""}`} id={b.id}>
-      {/* No thumbnail is fetched from the video site: nothing loads from a third party until the visitor follows the link. */}
-      <a className="vthumbwrap" href={d.link} target="_blank" rel="noopener noreferrer" aria-label={`Watch ${title} on ${host}`}>
-        <div className="vposter"><span className="vposter-camp">{camp || d.vtype || "Video"}</span><span className="vposter-title">{title}</span></div>
-        <span className="vplay" aria-hidden="true" />
-        {d.duration && <span className="vdur">{d.duration}</span>}
-        {d.vtype && d.vtype !== "Documentary" && <span className="vtype">{d.vtype}</span>}
-      </a>
+      <VideoThumb link={d.link} title={title} label={camp || d.vtype} duration={d.duration} type={d.vtype} host={host} />
       <div className="vbody">
         <h3><a href={d.link} target="_blank" rel="noopener noreferrer">{title}</a></h3>
         {meta && <p className="vmeta">{meta}</p>}

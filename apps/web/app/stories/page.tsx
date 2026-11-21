@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { get, me, canContribute, isEditor, type Story, type Campaign } from "@/lib/api";
 import { PageHead, AssessTag, NatureTag, MemberTag, HistoryPanel, fmtDate, Unavailable, Empty } from "@/components/ui";
+import VideoThumb from "@/components/VideoThumb";
 import StoryBody from "@/components/StoryBody";
 import ContributeForm from "@/components/ContributeForm";
 import { SaluteButton, DeleteButton } from "@/components/Interact";
@@ -37,6 +38,7 @@ export default async function Stories({ searchParams }: SP) {
           <article key={s.id} className="story" id={`story-${s.id}`}>
             <div><MemberTag /><span className="tag">{s.kind}</span><span className="tag">{s.era}</span><NatureTag n={s.nature} /><AssessTag k={s.assessment} /></div>
             <h3>{s.title}</h3>
+            {d.video && <div className="story-thumb"><VideoThumb link={d.video} title={s.title} label={s.kind} /></div>}
             <div className="meta">{s.authorName || "A member"}. {fmtDate(s.createdAt)}{s.reviewedAt ? `. Reviewed ${fmtDate(s.reviewedAt)}` : ""}</div>
             {d.narrator && <div className="meta">Account of {d.narrator}{d.narratorBg ? `, ${d.narratorBg}` : ""}</div>}
             {place && <div className="meta">{place}</div>}

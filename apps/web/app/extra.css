@@ -367,3 +367,6 @@ a.acoll b, a.acoll span, a.atype { text-decoration: none; }
 .story-filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--sp-3); width: 100%; flex: none; }
 .story-filters select { width: 100%; min-width: 0; text-overflow: ellipsis; }
 @media (max-width: 760px) { .story-bar { flex-direction: column; } .story-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Video thumbnail inside a story card */
+.story-thumb { max-width: 22rem; margin: var(--sp-2) 0 var(--sp-3); }
