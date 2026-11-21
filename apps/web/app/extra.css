@@ -344,3 +344,7 @@ a.acoll b, a.acoll span, a.atype { text-decoration: none; }
 .seg-tabs a { border: 1px solid var(--line); background: var(--surface); border-radius: 3px; padding: var(--sp-2) var(--sp-3); font-weight: 600; color: var(--muted); text-decoration: none; }
 .seg-tabs a[aria-selected="true"] { border-color: var(--beret); color: var(--ink); box-shadow: inset 0 -3px 0 var(--beret); }
 .seg-tabs a:hover { color: var(--ink); }
+
+/* Learning cards: the "Think about it" box and the link sit on the same baseline across all four cards */
+.lccard-body .lcq { margin-top: auto; }
+.lccard-body .actions { margin-top: var(--sp-2); }
