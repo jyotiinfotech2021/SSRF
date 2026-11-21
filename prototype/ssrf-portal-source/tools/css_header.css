@@ -1,0 +1,40 @@
+/* =====================================================================
+   SSRF portal stylesheet
+   One definitive rule per selector. Order: tokens, base, layout,
+   shared components, then page sections, then responsive overrides.
+
+   Breakpoints (desktop first; CSS variables cannot be used in media queries):
+     lg  max-width 900px   tablets, narrow laptops
+     md  max-width 760px   large phones, small tablets
+     sm  max-width 600px   phones
+   ===================================================================== */
+:root {
+  /* Fixed palette (the SSRF colour system) */
+  --olive-deep: #303B30;
+  --burgundy: #762633;
+  --brass-base: #B09555;
+  --brass-soft: #C4AE78;
+  --brass-light: #E6D7AE;
+  --ivory: #F4F0E6;
+  --charcoal: #252A27;
+  --archive: #D8D8D0;
+  /* Spacing scale */
+  --sp-1: .25rem; --sp-2: .5rem; --sp-3: .75rem; --sp-4: 1rem; --sp-5: 1.25rem;
+  --sp-6: 1.5rem; --sp-7: 2rem; --sp-8: 2.5rem; --sp-9: 3rem; --sp-10: 4rem;
+  /* Type scale */
+  --fs-2xs: .7rem; --fs-xs: .78rem; --fs-sm: .875rem; --fs-md: .95rem; --fs-base: 1.05rem;
+  --fs-lg: 1.15rem; --fs-xl: 1.35rem; --fs-2xl: 1.75rem; --fs-3xl: 2.25rem;
+  --fs-display: clamp(2.4rem, 6vw, 3.6rem);
+  /* Image aspect ratios */
+  --ar-photo: 4/3; --ar-video: 16/9; --ar-cover: 2/3; --ar-portrait: 4/5; --ar-square: 1;
+  /* Surfaces */
+  --shadow-card: 0 1px 2px rgba(37,42,39,.05), 0 4px 14px rgba(37,42,39,.04);
+  --shadow-raised: 0 6px 22px rgba(37,42,39,.14);
+}
+:root {
+  /* Headings */
+  --fs-page: 2.4rem;          /* page titles (h2 at the top of a page) */
+  --fs-section: 1.7rem;       /* section titles (.sect) */
+  --fs-landing: clamp(1.8rem, 4.2vw, 2.6rem);  /* dark landing banners */
+  --fs-card-title: 1.08rem;   /* titles inside cards and dossier sections */
+}
