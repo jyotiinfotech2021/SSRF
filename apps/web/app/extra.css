@@ -361,3 +361,9 @@ a.acoll b, a.acoll span, a.atype { text-decoration: none; }
 .story-filters select { width: auto; flex: 1 1 0; min-width: 0; }
 .story-bar .btn { flex: 0 0 auto; white-space: nowrap; }
 @media (max-width: 760px) { .story-bar, .story-filters { flex-wrap: wrap; } .story-filters select { flex: 1 1 9rem; } }
+
+/* Story filters: four equal-width selects share one full-width row; the contribute button sits on the next line */
+.story-bar { flex-direction: column; align-items: flex-start; flex-wrap: nowrap; gap: var(--sp-4); }
+.story-filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--sp-3); width: 100%; flex: none; }
+.story-filters select { width: 100%; min-width: 0; text-overflow: ellipsis; }
+@media (max-width: 760px) { .story-bar { flex-direction: column; } .story-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
