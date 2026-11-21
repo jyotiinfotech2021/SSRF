@@ -66,6 +66,15 @@ export default async function About() {
 
       <h3 className="sect">Map credits</h3>
       <p className="prose">India boundary: DataMeet (CC BY 4.0). Country outlines and rivers: Natural Earth (public domain). Campaign maps are explanatory sketches by the foundation, not historical maps.</p>
+
+      <h3 className="sect" id="sec-disclaimer">Disclaimer</h3>
+      <div className="prose">
+        <p>This website is run by the Sagat Singh Research Foundation as a historical research and preservation initiative. It is not an official website of the Indian Army, the Ministry of Defence or the Government of India, and nothing on it speaks for them.</p>
+        <p>The foundation takes care to cite its sources and to label every entry by the nature of its evidence and its verification status. History is still being researched. Entries marked unverified, attributed, disputed or under verification are not settled fact, and the foundation does not guarantee that any entry is complete or free of error. If you find a mistake, please use &ldquo;Suggest a correction&rdquo; on the entry or write to the foundation; corrections are logged in the open.</p>
+        <p>Accounts, stories and other material contributed by members are the views and recollections of their authors and are not endorsed by the foundation until an editor marks them verified. Photographs and drawings marked &ldquo;artist&apos;s impression&rdquo; or &ldquo;rendering&rdquo; are illustrations, not historical photographs. Maps are explanatory sketches, not survey or operational maps.</p>
+        <p>Books, articles, videos and other works by third parties are linked, not reproduced, and remain the property of their creators. The foundation is not responsible for the content of external websites. Names, ranks and honours are given as recorded in the cited sources.</p>
+        <p>Nothing on this site is professional, legal or financial advice. Use of the site is at your own risk, and the foundation accepts no liability for loss arising from reliance on its content.</p>
+      </div>
     </>
   );
 }
