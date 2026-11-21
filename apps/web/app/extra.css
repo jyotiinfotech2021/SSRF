@@ -290,3 +290,17 @@ summary { font-size: 1.2rem; font-weight: 700; letter-spacing: .03em; }
 .auth-pwlinks { display: inline-flex; gap: 1rem; align-items: baseline; }
 .auth-forgot { font-size: .85rem; font-weight: 600; color: var(--burgundy); }
 .auth-ok { background: #eef3e2; border: 1px solid #b7c68f; color: #3a4a1b; padding: .7rem .9rem; margin-bottom: .6rem; font-size: .92rem; }
+
+/* Hero brand line: the "SSRF" wordmark sits above the foundation name, same lockup as the header */
+.hero-cine .hero-mark { align-items: center; gap: .8rem; }
+.hero-mark-text { display: flex; flex-direction: column; line-height: 1; }
+.hero-mark-text b {
+  font-family: var(--stencil); font-weight: 800; font-size: 1.9rem; letter-spacing: .08em; line-height: .95;
+  background-image: linear-gradient(105deg, #C9A24E 0%, #DDB85F 30%, #FFF3C4 46%, #FFE08A 50%, #DDB85F 58%, #C9A24E 100%);
+  background-size: 250% 100%; background-position: 180% 0;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: var(--gold);
+  animation: gold-glint 6s ease-in-out infinite;
+}
+.hero-mark-text span { margin-top: .3rem; }
+.hero-cine .hero-mark svg { width: 2.9rem; height: 2.9rem; }
+@media (prefers-reduced-motion: reduce) { .hero-mark-text b { animation: none; background-position: 60% 0; } }

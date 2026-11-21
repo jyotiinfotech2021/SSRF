@@ -26,7 +26,7 @@ export default async function Home() {
       <section className="hero has-portrait hero-band hero-cine">
         <div className="hero-inner">
           <div className="hero-text">
-            <div className="hero-mark"><Mark /><span>Sagat Singh Research Foundation</span></div>
+            <div className="hero-mark"><Mark /><div className="hero-mark-text"><b>SSRF</b><span>Sagat Singh Research Foundation</span></div></div>
             <p className="hk-rank">Lieutenant General</p>
             <h1>Sagat Singh</h1>
             <p className="hk-hon">PVSM, Padma Bhushan</p>
