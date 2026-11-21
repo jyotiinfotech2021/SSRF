@@ -1,0 +1,62 @@
+# Production-style stack. Copy .env.example to .env and fill in real values first. No secrets live in this file.
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ssrf
+      POSTGRES_USER: ssrf
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ssrf -d ssrf"]
+      interval: 10s
+      retries: 6
+
+  api:
+    build: ./apps/api
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      ConnectionStrings__Default: Host=db;Database=ssrf;Username=ssrf;Password=${POSTGRES_PASSWORD}
+      Bootstrap__AdminEmail: ${ADMIN_EMAIL:?set ADMIN_EMAIL in .env}
+      ASPNETCORE_ENVIRONMENT: Production
+    volumes:
+      - uploads:/data/storage
+
+  web:
+    build:
+      context: ./apps/web
+      args:
+        API_URL: http://api:8080
+    restart: unless-stopped
+    depends_on: [api]
+    environment:
+      API_URL: http://api:8080
+      SITE_URL: ${SITE_URL:?set SITE_URL in .env}
+    ports:
+      - "3000:3000"
+
+  # Nightly logical backup of the database plus the uploads volume. Keeps 14 days. See docs/deployment/backup-recovery.md.
+  backup:
+    image: postgres:17
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      PGHOST: db
+      PGUSER: ssrf
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ssrf
+    volumes:
+      - ./ops/backup.sh:/backup.sh:ro
+      - backups:/backups
+      - uploads:/data/storage:ro
+    entrypoint: ["/bin/sh", "-c", "while true; do /bin/sh /backup.sh; sleep 86400; done"]
+
+volumes:
+  pgdata:
+  uploads:
+  backups:

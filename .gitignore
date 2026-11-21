@@ -1,0 +1,16 @@
+export/
+**/storage/
+**/bin/
+**/obj/
+node_modules/
+.next/
+.env
+.env.*
+!.env.example
+*.dump
+backups/
+*.zip
+.claude/
+*.log
+.DS_Store
+Thumbs.db
