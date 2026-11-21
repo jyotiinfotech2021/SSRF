@@ -13,3 +13,6 @@ export function englishTitle(title: string, fallback?: string): string {
 
 /** The generic note stamped on every catalogued video at set-up says nothing about the item, so it is not shown. */
 export const usefulNote = (n?: string | null) => (n && !/^Link, title and creator credit checked during setup/i.test(n) ? n : null);
+
+/** Images uploaded to the prototype are referenced as /_blob/<id>; the copies the foundation supplied live under /recognition. */
+export const assetUrl = (u: string) => { const m = /^\/_blob\/([0-9a-f]{32})$/.exec(u); return m ? `/recognition/${m[1]}.jpg` : u; };

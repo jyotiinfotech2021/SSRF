@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { assetUrl } from "@/lib/text";
 import { get, type Campaign, type Claim, type EventItem, type Story, type ArchiveItem, type Place, type Quiz } from "@/lib/api";
 import { fmtDay, Unavailable, Empty } from "@/components/ui";
 import { Mark } from "@/components/Mark";
@@ -58,16 +59,16 @@ export default async function Home() {
       {features.length > 0 && <h2 className="sect">Proposed in Bikaner</h2>}
       {features.map((f) => (
         <section key={f.id} className="feature-museum">
-          <h3>{f.title.split(" / ")[0]}</h3>
+          <h3>{f.title.split(" / ")[0].replace(/ (proposed)$/, "")}</h3>
           <p>{f.data.homeBlurb ?? f.description} <Link href="/recognition">See the full details</Link>{f.data.archiveId ? <> or <Link href={`/archive/${f.data.archiveId}`}>open the full document</Link></> : null}.</p>
           <div className="concept">
             <p className="concept-note"><b>Artists&apos; renderings, not photographs.</b> {f.data.imagesNote}</p>
             <div className="concept-grid">
-              {f.data.images!.map((i) => (
+              {f.data.images!.slice(0, 4).map((i) => (
                 <figure key={i.url} className={i.wide ? "wide" : undefined}>
-                  <a href={i.url} target="_blank" rel="noopener noreferrer">
+                  <a href={assetUrl(i.url)} target="_blank" rel="noopener noreferrer">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={i.url} alt={`${i.caption ?? f.title.split(" / ")[0]} (artist's rendering)`} loading="lazy" className={i.fit === "contain" ? "fit" : undefined} />
+                    <img src={assetUrl(i.url)} alt={`${i.caption ?? f.title.split(" / ")[0]} (artist's rendering)`} loading="lazy" className={i.fit === "contain" ? "fit" : undefined} />
                   </a>
                   <figcaption>{i.caption}</figcaption>
                 </figure>

@@ -6,6 +6,7 @@ import { HistoryPanel, Unavailable, Cites, sourceMap } from "@/components/ui";
 import ContributeForm from "@/components/ContributeForm";
 import CorrectionBox from "@/components/CorrectionBox";
 import { StatusForm, DeleteButton } from "@/components/Interact";
+import { assetUrl } from "@/lib/text";
 import { PKINDS } from "@/lib/ref";
 import { INDIA, inP } from "@/lib/indiaMap";
 
@@ -30,10 +31,10 @@ function Card({ p, ed, signedIn, sources }: { p: Place; ed: boolean; signedIn: b
     <article className={`rcard ${st}`} id={p.id} style={{ ["--sc" as string]: sc }}>
       <div className="rcard-body">
         <div className="rhead2">
-          {img ? <a className="rthumb" href={img.url} target="_blank" rel="noopener noreferrer">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={img.url} alt={p.title} loading="lazy" /><span className="rimg-note">Rendering</span></a> : <span className="ricon"><Icon k={p.kind} /></span>}
+          {img ? <a className="rthumb" href={assetUrl(img.url)} target="_blank" rel="noopener noreferrer">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={assetUrl(img.url)} alt={p.title} loading="lazy" /><span className="rimg-note">Rendering</span></a> : <span className="ricon"><Icon k={p.kind} /></span>}
           <div>
             <p className="rtype">{p.kind === "Proposal" ? "Proposed project" : p.kind} <span className="rstat">{st === "verified" ? "✓ " : ""}{sl}</span></p>
-            <h3>{p.title.split(" / ")[0]}</h3>
+            <h3>{p.title.split(" / ")[0].replace(/ (proposed)$/, "")}</h3>
             {(loc.city || d.location) && <p className="rloc"><svg className="aicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11z" /><circle cx="12" cy="10" r="2.2" /></svg>{[loc.city, loc.state !== "Other" ? loc.state : ""].filter(Boolean).join(", ")}</p>}
           </div>
         </div>
@@ -44,7 +45,7 @@ function Card({ p, ed, signedIn, sources }: { p: Place; ed: boolean; signedIn: b
         {(d.images?.length ?? 0) > 1 && (
           <details className="evdet"><summary className="link evbtn">All {d.images!.length} images</summary>
             <div className="concept"><p className="concept-note"><b>Artists&apos; renderings, not photographs.</b> {d.imagesNote}</p>
-              <div className="concept-grid">{d.images!.map((i) => <figure key={i.url} className={i.wide ? "wide" : undefined}><a href={i.url} target="_blank" rel="noopener noreferrer">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={i.url} alt={`${i.caption ?? p.title} (artist's rendering)`} loading="lazy" /></a><figcaption>{i.caption}</figcaption></figure>)}</div></div>
+              <div className="concept-grid">{d.images!.map((i) => <figure key={i.url} className={i.wide ? "wide" : undefined}><a href={assetUrl(i.url)} target="_blank" rel="noopener noreferrer">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={assetUrl(i.url)} alt={`${i.caption ?? p.title} (artist's rendering)`} loading="lazy" /></a><figcaption>{i.caption}</figcaption></figure>)}</div></div>
           </details>)}
         {(cites.length > 0 || d.source) && <details className="evdet"><summary className="link evbtn">Sources</summary><div className="evpanel">{cites.length ? <Cites cites={cites} sources={sources} /> : <p><a href={d.source} target="_blank" rel="noopener noreferrer">{d.source}</a></p>}</div></details>}
         <HistoryPanel target={`places/${p.id}`} />
