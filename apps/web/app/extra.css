@@ -370,3 +370,11 @@ a.acoll b, a.acoll span, a.atype { text-decoration: none; }
 
 /* Video thumbnail inside a story card */
 .story-thumb { max-width: 22rem; margin: var(--sp-2) 0 var(--sp-3); }
+
+/* Quiz set-up: topic, level, the question count and the start button share one row, with narrow dropdowns */
+.quiz-setup { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sp-4) var(--sp-5); }
+.quiz-setup label { margin: 0; }
+.quiz-setup select { width: 12rem; margin-top: var(--sp-1); }
+.quiz-setup .meta { margin: 0; padding-bottom: .6rem; }
+.quiz-setup .btn { margin-left: auto; }
+@media (max-width: 640px) { .quiz-setup select { width: 100%; } .quiz-setup label { flex: 1 1 100%; } .quiz-setup .btn { margin-left: 0; } }

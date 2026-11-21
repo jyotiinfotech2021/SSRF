@@ -20,7 +20,7 @@ export default function QuizApp({ all, editor, initialTopic }: { all: Q[]; edito
 
   return (
     <section id="quiz">
-      {!qs && (<div className="panel">
+      {!qs && (<div className="panel quiz-setup">
         <label>Topic<select value={topic} onChange={(e) => setTopic(e.target.value)}><option value="">Any</option>{Object.entries(QTOPICS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
         <label>Level<select value={level} onChange={(e) => setLevel(e.target.value)}><option value="">Any</option>{Object.entries(QLEVELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
         <p className="meta">{pool.length} question{pool.length === 1 ? "" : "s"} available</p>
