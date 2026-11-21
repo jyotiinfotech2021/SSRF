@@ -5,6 +5,7 @@ import Link from "next/link";
 import { get, me, canContribute, isEditor, type Book, type Campaign } from "@/lib/api";
 import { HistoryPanel, Unavailable } from "@/components/ui";
 import ContributeForm from "@/components/ContributeForm";
+import { usefulNote } from "@/lib/text";
 import CorrectionBox from "@/components/CorrectionBox";
 import { StatusForm, DeleteButton } from "@/components/Interact";
 
@@ -55,7 +56,7 @@ function Card({ b, ed, signedIn }: { b: Book; ed: boolean; signedIn: boolean }) 
         <h3>{b.title}</h3>
         <Meta b={b} />
         {b.description && <p className="ldesc">{b.description}</p>}
-        {b.verNote && <p className="meta">{b.verNote}</p>}
+        {usefulNote(b.verNote) && <p className="meta">{usefulNote(b.verNote)}</p>}
         <div className="lacts">{d.link && <a className="btn small" href={d.link} target="_blank" rel="noopener noreferrer">{lLinkLabel(b)} ↗</a>}{signedIn && <CorrectionBox target={`books/${b.id}`} title={b.title} />}</div>
         <HistoryPanel target={`books/${b.id}`} />
         {ed && <div className="actions"><StatusForm col="books" id={b.id} status={b.status} note={b.verNote} /><DeleteButton col="books" id={b.id} label="Delete" confirmText="Delete this entry? It can be restored only from a backup." /></div>}
@@ -128,7 +129,7 @@ export default async function Library({ searchParams }: SP) {
               <div className="lstat">{b.status === "verified" ? <span className="lver">✓ Verified</span> : <span className="lchk">Being checked</span>}<span className="lcamp">The standard biography</span></div>
               <h3>{b.title}</h3><Meta b={b} />
               {b.description && <p className="ldesc">{b.description}</p>}
-              {b.verNote && <p className="meta">{b.verNote}</p>}
+              {usefulNote(b.verNote) && <p className="meta">{usefulNote(b.verNote)}</p>}
               <div className="lacts">{d.link && <a className="btn" href={d.link} target="_blank" rel="noopener noreferrer">{lLinkLabel(b)} ↗</a>}{signedIn && <CorrectionBox target={`books/${b.id}`} title={b.title} />}</div>
               <HistoryPanel target={`books/${b.id}`} />
             </div>

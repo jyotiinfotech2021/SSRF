@@ -3,7 +3,7 @@ import Link from "next/link";
 import { pageMeta } from "@/lib/seo";
 import { get, me, canContribute, isEditor, type Book, type Campaign } from "@/lib/api";
 import { Unavailable, HistoryPanel } from "@/components/ui";
-import { englishTitle } from "@/lib/text";
+import { englishTitle, usefulNote } from "@/lib/text";
 import ContributeForm from "@/components/ContributeForm";
 import CorrectionBox from "@/components/CorrectionBox";
 import { StatusForm, DeleteButton } from "@/components/Interact";
@@ -32,7 +32,7 @@ function VCard({ b, big, ed, signedIn, camps }: { b: Book; big?: boolean; ed: bo
         <h3><a href={d.link} target="_blank" rel="noopener noreferrer">{title}</a></h3>
         {meta && <p className="vmeta">{meta}</p>}
         {b.description && <p className="vdesc">{b.description}</p>}
-        {b.verNote && <p className="meta">{b.verNote}</p>}
+        {usefulNote(b.verNote) && <p className="meta">{usefulNote(b.verNote)}</p>}
         <p className="vcredit">Original on <a href={d.link} target="_blank" rel="noopener noreferrer">{host || "source site"}</a>{d.creator || d.author ? `, by ${d.creator || d.author}` : ", credited to the channel that uploaded it"}. Views and credit stay with the creator.</p>
         <div className="actions">{signedIn && <CorrectionBox target={`books/${b.id}`} title={title} />}</div>
         <HistoryPanel target={`books/${b.id}`} />

@@ -10,3 +10,6 @@ export function englishTitle(title: string, fallback?: string): string {
   const joined = latin.join(" ").replace(/\s+/g, " ").trim();
   return joined.replace(/[A-Za-z]/g, "").length < joined.length && joined.length >= 14 ? joined : fallback || "Hindi-language video";
 }
+
+/** The generic note stamped on every catalogued video at set-up says nothing about the item, so it is not shown. */
+export const usefulNote = (n?: string | null) => (n && !/^Link, title and creator credit checked during setup/i.test(n) ? n : null);
