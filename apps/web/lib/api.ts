@@ -19,15 +19,19 @@ export type Member = { id: string; name: string; title?: string; affiliation?: s
 export type Revision = { id: string; action: string; target: string; title?: string; reason?: string; byId?: string; before?: string; after?: string; at: string };
 export type Me = { id: string | null; email?: string; roles?: string[]; legacyUid?: string };
 
-async function headers() {
-  const c = (await cookies()).toString();
-  return c ? { cookie: c } : undefined;
-}
+const AUTH_COOKIE = "ssrf.auth";
+/** How long public data is reused by the web server before it asks the API again. Signed-in visitors always get fresh data. */
+const PUBLIC_REVALIDATE = Number(process.env.PUBLIC_REVALIDATE_SECONDS ?? 120);
 
-/** Server-side GET. Returns null when the API is unreachable or the record is missing, so pages can show an honest empty state. */
+/** Server-side GET. Returns null when the API is unreachable or the record is missing, so pages can show an honest empty state.
+ *  Visitors without a session see only public data, so their requests are cached briefly and shared; anyone signed in is never served from that cache. */
 export async function get<T>(path: string): Promise<T | null> {
   try {
-    const r = await fetch(API_URL + path, { cache: "no-store", headers: await headers() });
+    const jar = await cookies();
+    const signedIn = jar.has(AUTH_COOKIE);
+    const r = signedIn
+      ? await fetch(API_URL + path, { cache: "no-store", headers: { cookie: jar.toString() } })
+      : await fetch(API_URL + path, { next: { revalidate: PUBLIC_REVALIDATE } });
     if (!r.ok) return null;
     return (await r.json()) as T;
   } catch {
