@@ -5,6 +5,7 @@ import Link from "next/link";
 import { me, isEditor, get, type Source } from "@/lib/api";
 import Header from "@/components/Header";
 import Toast from "@/components/Toast";
+import AnimatedFavicon from "@/components/AnimatedFavicon";
 import { Mark } from "@/components/Mark";
 
 export const metadata: Metadata = {
@@ -49,6 +50,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </div>
         </footer>
         <Toast />
+        <AnimatedFavicon />
       </body>
     </html>
   );
