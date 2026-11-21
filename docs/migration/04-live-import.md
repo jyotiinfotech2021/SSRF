@@ -17,3 +17,5 @@ Uploaded files: the ten book covers were downloaded from the artifact's asset st
 Library replaced with the live content: the five remaining web-research articles and one stray story that were not in the live data were removed (backup: `export/pre-replace-2026-11-21.sql`). The Library page now shows the live items with real covers, verified labels and the featured publication.
 
 Reclassified at the foundation's request: `vid-lallantop-tarikh` (The Lallantop) and `vid-quint-1967` (The Quint) are articles, not videos, so they now sit in the Library under Articles and are no longer featured videos.
+
+Contact email: `sagatsingh.org@gmail.com` is stored in the site settings (`Site` table, key `settings`, field `email`). It feeds the About page, the governance page, the privacy notice, the footer Contact link and the organisation structured data. Editors can change it in the site settings form; a fresh database needs it set once.
