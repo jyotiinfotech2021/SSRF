@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import Link from "next/link";
 import { get, me, canContribute, isEditor, type Place, type Campaign } from "@/lib/api";
 import { PageHead, StatusTag, HistoryPanel, Unavailable, Empty } from "@/components/ui";
@@ -6,7 +7,7 @@ import ContributeForm from "@/components/ContributeForm";
 import { StatusForm, DeleteButton } from "@/components/Interact";
 import { PKINDS } from "@/lib/ref";
 
-export const metadata: Metadata = { title: "Recognition register", description: "Statues, busts, memorials, honours and observances recognising Lt Gen Sagat Singh, each with a verification status." };
+export const metadata: Metadata = pageMeta("Recognition register: statues, memorials and honours", "Statues, busts, memorials, honours and observances recognising Lt Gen Sagat Singh, each with its source and a verification status.", "/recognition");
 type SP = { searchParams: Promise<{ q?: string; kind?: string; state?: string }> };
 
 export default async function Recognition({ searchParams }: SP) {

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import { get, type Chapter, type Member, type EventItem } from "@/lib/api";
 import { PageHead, Unavailable, Empty, fmtDay } from "@/components/ui";
 
-export const metadata: Metadata = { title: "Chapters", description: "Regional chapters of the foundation and what each is working on." };
+export const metadata: Metadata = pageMeta("Regional chapters of the Sagat Singh Research Foundation", "Regional chapters of the foundation and what each is working on: local research, memorial registers, school outreach and oral-history collection.", "/chapters");
 
 export default async function Chapters() {
   const [chapters, members, events] = await Promise.all([get<Chapter[]>("/api/chapters"), get<Member[]>("/api/members"), get<EventItem[]>("/api/events")]);

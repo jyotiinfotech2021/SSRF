@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import { get, type Entity } from "@/lib/api";
 import { PageHead, ShortCite, sourceMap, Unavailable, Empty } from "@/components/ui";
 
-export const metadata: Metadata = { title: "People and units", description: "People and military units connected with Lt Gen Sagat Singh's career." };
+export const metadata: Metadata = pageMeta("People and military units in Sagat Singh's career", "People and military units connected with Lt Gen Sagat Singh's career, from the Bikaner Ganga Risala to IV Corps, each with its role, period and sources.", "/people");
 
 export default async function People() {
   const [ents, sources] = await Promise.all([get<Entity[]>("/api/entities"), sourceMap()]);

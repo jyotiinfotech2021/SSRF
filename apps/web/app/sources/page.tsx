@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import { get, me, isEditor, type Source } from "@/lib/api";
 import { PageHead, NatureTag, Unavailable, Empty } from "@/components/ui";
 import AddSource from "@/components/AddSource";
 import { NATURE } from "@/lib/ref";
 
-export const metadata: Metadata = { title: "Sources", description: "Every source cited on the site, classified by nature, with access dates." };
+export const metadata: Metadata = pageMeta("Sources cited on the Sagat Singh Research Foundation site", "Every source cited on this site, classified as primary, oral history, family testimony, secondary research or tertiary, with access dates and links.", "/sources");
 type SP = { searchParams: Promise<{ q?: string; nature?: string }> };
 
 export default async function Sources({ searchParams }: SP) {

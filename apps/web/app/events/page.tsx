@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import Link from "next/link";
 import { Suspense } from "react";
 import { get, me, canContribute, isEditor, type EventItem, type Campaign, type Chapter } from "@/lib/api";
@@ -10,8 +11,10 @@ import ReportForm from "@/components/ReportForm";
 import CorrectionBox from "@/components/CorrectionBox";
 import FilterBar from "@/components/FilterBar";
 import { ETYPES } from "@/lib/ref";
+import JsonLd from "@/components/JsonLd";
+import { SITE } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Events and programmes", description: "Commemorations, research events and public programmes, with reports, proceedings, photographs and press coverage for past events." };
+export const metadata: Metadata = pageMeta("Events and programmes: commemorations and research", "Commemorations, research events and public programmes about Lt Gen Sagat Singh, with reports, proceedings, photographs and press coverage for past events.", "/events");
 type Media = { id: string; kind: string; fileId?: string; url?: string; caption?: string; credit?: string; ownerId: string };
 type SP = { searchParams: Promise<{ etype?: string; chapter?: string }> };
 
@@ -55,8 +58,15 @@ export default async function Events({ searchParams }: SP) {
         <MediaPanel eventId={e.id} media={media ?? []} canAdd={canContribute(who)} uid={who.id} editor={ed} />
       </article>);
   };
+  // Event structured data, only for events that have a date and a place (what search engines require).
+  const eventLd = (events ?? []).filter((e) => e.date && (e.data as { place?: string }).place).map((e) => {
+    const d = e.data as { place?: string; organiser?: string };
+    return { "@type": "Event", name: e.title, startDate: e.date, eventStatus: "https://schema.org/EventScheduled", eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+      location: { "@type": "Place", name: d.place }, ...(e.description ? { description: e.description } : {}), ...(d.organiser ? { organizer: { "@type": "Organization", name: d.organiser } } : {}), url: `${SITE}/events#${e.id}` };
+  });
   return (
     <>
+      {eventLd.length > 0 && <JsonLd data={{ "@context": "https://schema.org", "@graph": eventLd }} />}
       <h1 className="bio-title">Events and programmes</h1>
       <p className="sub">Commemorations, research events and public programmes. When its date passes, an event moves to past events, where its report, proceedings, photographs, credits and press coverage become the permanent record.</p>
       {!events && <Unavailable />}

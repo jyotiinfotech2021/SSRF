@@ -328,3 +328,7 @@ a.acoll b, a.acoll span, a.atype { text-decoration: none; }
 .story-actions { display: flex; flex-wrap: wrap; gap: .8rem 1.1rem; align-items: center; margin: .4rem 0; }
 .story-editor { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-top: .7rem; }
 .assess-select { padding: .5rem .8rem; font: inherit; min-width: 16rem; border: 1px solid #b9b6a8; background: #fffdf7; border-radius: 2px; }
+
+/* SEO: the Archive and Learning heroes are the page's single H1; same look as the prototype's hero H2 */
+.alanding h1 { font-family: var(--stencil); font-size: var(--fs-landing); line-height: 1; margin: 0 0 var(--sp-3); color: var(--brass-light); font-weight: 600; }
+.lclanding h1 { font-family: var(--stencil); font-size: var(--fs-landing); line-height: 1.02; margin: 0 0 var(--sp-3); color: var(--brass-light); font-weight: 600; }

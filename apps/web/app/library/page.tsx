@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { pageMeta, SITE } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
 import Link from "next/link";
 import { get, me, canContribute, isEditor, type Book, type Campaign } from "@/lib/api";
 import { PageHead, StatusTag, NatureTag, HistoryPanel, Unavailable, Empty } from "@/components/ui";
@@ -6,7 +8,7 @@ import ContributeForm from "@/components/ContributeForm";
 import { StatusForm, DeleteButton } from "@/components/Interact";
 import { BKINDS } from "@/lib/ref";
 
-export const metadata: Metadata = { title: "Library", description: "Books, articles, official records, theses and other published works about Lt Gen Sagat Singh." };
+export const metadata: Metadata = pageMeta("Library: books and articles about Lt Gen Sagat Singh", "Books, articles, official records and theses about Lt Gen Sagat Singh, each catalogued with its author, nature of source and verification status.", "/library");
 type SP = { searchParams: Promise<{ q?: string; kind?: string }> };
 
 export default async function Library({ searchParams }: SP) {
@@ -18,6 +20,10 @@ export default async function Library({ searchParams }: SP) {
   const ed = isEditor(who);
   return (
     <>
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "ItemList", name: "Library: books and articles about Lt Gen Sagat Singh", numberOfItems: rows.length,
+        itemListElement: rows.map((b, i) => { const d = b.data as { author?: string; year?: string; link?: string };
+          return { "@type": "ListItem", position: i + 1, item: { "@type": b.kind === "Biography" || b.kind === "Book" ? "Book" : b.kind === "Article" || b.kind === "Newspaper" ? "Article" : "CreativeWork", name: b.title,
+            ...(d.author ? { author: { "@type": "Person", name: d.author } } : {}), ...(d.year ? { datePublished: d.year } : {}), ...(d.link ? { url: d.link } : {}), about: { "@id": `${SITE}/#subject` } } }; }) }} />
       <PageHead title="Library" lead="Published works about Sagat Singh. An entry is listed as soon as it is catalogued and carries a verification status." />
       {!books && <Unavailable />}
       <form method="get" className="inline-form" role="search">

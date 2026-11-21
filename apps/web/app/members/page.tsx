@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import Link from "next/link";
 import { get, type Member } from "@/lib/api";
 import { PageHead, Unavailable, Empty, fmtDate } from "@/components/ui";
 import { CATEGORIES } from "@/lib/ref";
 
-export const metadata: Metadata = { title: "Members", description: "Members of the foundation who chose to be listed." };
+export const metadata: Metadata = pageMeta("Members of the Sagat Singh Research Foundation", "Members of the Sagat Singh Research Foundation who chose to be listed: researchers, veterans, family members, students and supporters.", "/members");
 type SP = { searchParams: Promise<{ q?: string; cat?: string }> };
 
 export default async function Members({ searchParams }: SP) {

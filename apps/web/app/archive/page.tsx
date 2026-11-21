@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import Link from "next/link";
 import { get, me, canContribute, isEditor, type ArchiveItem, type Campaign } from "@/lib/api";
 import { Unavailable, Empty } from "@/components/ui";
@@ -6,7 +7,7 @@ import ContributeForm from "@/components/ContributeForm";
 import { ACOLL } from "@/lib/ref";
 import { ACOLLMETA, ATYPES, AIcon, collMeta } from "@/lib/archive";
 
-export const metadata: Metadata = { title: "Digital archive", description: "Photographs, letters, documents, maps, recordings and newspaper items, each with a permanent identifier, origin, credit and rights." };
+export const metadata: Metadata = pageMeta("Digital archive: photographs, letters and records", "Photographs, letters, documents, maps, recordings and newspaper items about Lt Gen Sagat Singh, each with a permanent identifier, origin, credit and rights.", "/archive");
 type Item = ArchiveItem & { thumb?: string | null };
 type SP = { searchParams: Promise<{ atype?: string; acoll?: string; page?: string }> };
 
@@ -28,7 +29,7 @@ export default async function Archive({ searchParams }: SP) {
         <div className="alanding-inner">
           <div className="alanding-text">
             <p className="eyebrow">SSRF Digital archive</p>
-            <h2>Photographs, letters and records of his life</h2>
+            <h1>Photographs, letters and records of his life</h1>
             <p>Every item carries a permanent identifier, its origin, credit and rights. Originals stay unaltered; what you see are viewing copies.</p>
             <p className="alanding-stats"><b>{vis.length}</b> {vis.length === 1 ? "item" : "items"} catalogued · <b>{started}</b> of {ACOLL.length} collections started</p>
             <div className="entry">

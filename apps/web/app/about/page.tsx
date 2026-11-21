@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import Link from "next/link";
 import { get, me, isEditor } from "@/lib/api";
 import { AssessTag, NatureTag } from "@/components/ui";
 import SettingsForm from "@/components/SettingsForm";
 import { ASSESS, ASSESS_HELP, NATURE, NATURE_HELP, VSTAT } from "@/lib/ref";
 
-export const metadata: Metadata = { title: "About SSRF", description: "What the Sagat Singh Research Foundation does, how evidence is judged, how contributions are reviewed, and how personal data is handled." };
+export const metadata: Metadata = pageMeta("About the Sagat Singh Research Foundation", "What the Sagat Singh Research Foundation does, how evidence is judged, how contributions are reviewed, and how personal data is handled.", "/about");
 type Settings = { governance?: string; council?: string; email?: string; address?: string; registration?: string; dataOfficer?: string; social?: string };
 
 export default async function About() {

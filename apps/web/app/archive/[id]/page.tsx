@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { pageMeta, SITE } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { get, me, isEditor, canContribute, type ArchiveItem } from "@/lib/api";
@@ -11,8 +13,12 @@ type File = { id: string; name: string; contentType: string; size: number; sha25
 type Params = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params;
-  const r = await get<{ item: ArchiveItem }>(`/api/archive/${id}`);
-  return r ? { title: `${r.item.title} (${id})`, description: (r.item.description ?? "").slice(0, 160) } : { title: "Archive item" };
+  const r = await get<{ item: ArchiveItem; files: { id: string; contentType: string }[] }>(`/api/archive/${id}`);
+  if (!r) return { title: "Archive item", robots: { index: false } };
+  const a = r.item, img = r.files.find((f) => f.contentType.startsWith("image/")); const thumb = img ? `/api/files/${img.id}` : (a.data as { thumb?: string }).thumb;
+  const d = (a.description ?? "").replace(/\s+/g, " ").trim();
+  const desc = (d.length >= 70 ? d : `${d} Catalogue record ${id}: ${a.category ?? "item"} in the ${a.collection ?? "SSRF digital archive"}, with its origin, credit and rights.`.trim()).slice(0, 158);
+  return pageMeta(`${a.title} (${id})`.slice(0, 70), desc, "/archive/" + id, thumb || undefined);
 }
 
 export default async function ArchiveItemPage({ params }: Params) {
@@ -25,6 +31,10 @@ export default async function ArchiveItemPage({ params }: Params) {
   return (
     <>
       <p><Link href="/archive">← Digital archive</Link></p>
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "ArchiveComponent", name: a.title, identifier: a.id, ...(a.description ? { description: a.description } : {}),
+        holdingArchive: { "@id": `${SITE}/#organization` }, ...(a.collection ? { isPartOf: { "@type": "ArchiveComponent", name: a.collection } } : {}), url: `${SITE}/archive/${a.id}`,
+        ...(d.creator ? { creator: { "@type": "Person", name: d.creator } } : {}), ...(a.rights ? { copyrightNotice: a.rights } : {}),
+        ...(a.access !== "Restricted" && files.find((f) => f.contentType.startsWith("image/")) ? { image: `${SITE}/api/files/${files.find((f) => f.contentType.startsWith("image/"))!.id}` } : {}) }} />
       <h1>{a.title}</h1>
       <p className="tags"><StatusTag s={a.status} /> <NatureTag n={a.nature} /></p>
       {a.verNote && <p className="meta">{a.verNote}</p>}

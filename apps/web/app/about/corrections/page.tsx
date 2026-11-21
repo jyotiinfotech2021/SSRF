@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import Link from "next/link";
 import { me } from "@/lib/api";
 import { PageHead } from "@/components/ui";
 
-export const metadata: Metadata = { title: "Corrections", description: "How to tell the foundation something on this site is wrong, and what happens next." };
+export const metadata: Metadata = pageMeta("Corrections: tell the editors something is wrong", "How to tell the foundation that something on this site is wrong or unsupported, and what happens to a correction.", "/about/corrections");
 
 export default async function Corrections() {
   const who = await me();

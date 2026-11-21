@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { pageMeta, SITE } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { get, me, isEditor, type Story } from "@/lib/api";
@@ -9,7 +11,8 @@ import { SaluteButton, DeleteButton, EditText } from "@/components/Interact";
 type Params = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params; const s = await get<Story>(`/api/stories/${id}`);
-  return s ? { title: s.title, description: (s.body ?? "").slice(0, 160) } : { title: "Story" };
+  const d = s ? (s.body ?? "").replace(/\s+/g, " ").trim().slice(0, 158) : "";
+  return s ? pageMeta(s.title, d.length >= 70 ? d : (d + " A story by " + (s.authorName ?? "a member") + " about Lt Gen Sagat Singh, labelled by the nature of the material and how well its claims are supported.").slice(0, 158), "/stories/" + id) : { title: "Story", robots: { index: false } };
 }
 
 export default async function StoryPage({ params }: Params) {
@@ -19,6 +22,8 @@ export default async function StoryPage({ params }: Params) {
   const d = s.data as Record<string, string>;
   return (
     <article>
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "Article", headline: s.title.slice(0, 110), datePublished: s.createdAt, inLanguage: "en-IN", mainEntityOfPage: `${SITE}/stories/${s.id}`,
+        author: { "@type": "Person", name: s.authorName || "A member" }, publisher: { "@id": `${SITE}/#organization` }, about: { "@id": `${SITE}/#subject` }, articleBody: (s.body ?? "").slice(0, 5000) }} />
       <p><Link href="/stories">← Stories</Link></p>
       <h1>{s.title}</h1>
       <p className="meta">{s.kind}{s.era ? ` · ${s.era}` : ""} · by {s.authorName} · {fmtDate(s.createdAt)}</p>

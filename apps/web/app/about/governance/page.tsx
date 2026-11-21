@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import Link from "next/link";
 import { get } from "@/lib/api";
 import { PageHead } from "@/components/ui";
 
-export const metadata: Metadata = { title: "Governance", description: "How the Sagat Singh Research Foundation is governed and how editorial decisions are made and recorded." };
+export const metadata: Metadata = pageMeta("Governance of the Sagat Singh Research Foundation", "How the Sagat Singh Research Foundation is governed, who is on its council, and how editorial decisions are made and recorded.", "/about/governance");
 type Settings = { governance?: string; council?: string; editors?: string; email?: string };
 
 export default async function Governance() {

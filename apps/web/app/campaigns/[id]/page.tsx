@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { get, me, type Campaign, type Claim, type Entity, type Cite } from "@/lib/api";
@@ -9,7 +10,7 @@ type Params = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { id } = await params;
   const c = await get<Campaign>(`/api/campaigns/${id}`);
-  return c ? { title: c.name, description: String(c.data.lead ?? "").slice(0, 160) } : { title: "Campaign" };
+  return c ? pageMeta(c.name, String(c.data.lead ?? "").replace(/\s+/g, " ").trim().slice(0, 158) || "The " + c.name + " campaign of Lt Gen Sagat Singh, with chronology, command structure, claims and sources.", "/campaigns/" + id) : { title: "Campaign", robots: { index: false } };
 }
 const asCites = (keys: unknown): Cite[] => (Array.isArray(keys) ? keys.map((k, i) => ({ id: i, sourceId: String(k), position: i })) : []);
 type Row = { d?: string; e?: string; s?: string; m?: boolean };

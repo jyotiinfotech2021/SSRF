@@ -3,6 +3,8 @@ import { get, type Campaign, type Claim, type EventItem, type Story, type Archiv
 import { fmtDay, Unavailable, Empty } from "@/components/ui";
 import { Mark } from "@/components/Mark";
 import QuizApp from "@/components/QuizApp";
+import JsonLd from "@/components/JsonLd";
+import { SITE, SUBJECT } from "@/lib/seo";
 
 
 type Portrait = { url?: string; caption?: string; credit?: string; archiveId?: string };
@@ -23,6 +25,9 @@ export default async function Home() {
   const recentStories = (stories ?? []).slice(0, 2);
   return (
     <>
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "Person", "@id": `${SITE}/#subject`, name: SUBJECT.name, honorificPrefix: SUBJECT.honorificPrefix, honorificSuffix: SUBJECT.honorificSuffix, jobTitle: SUBJECT.jobTitle,
+        birthDate: SUBJECT.birthDate, birthPlace: { "@type": "Place", name: SUBJECT.birthPlace }, deathDate: SUBJECT.deathDate, deathPlace: { "@type": "Place", name: SUBJECT.deathPlace },
+        description: "Indian Army general who led paratroopers into Goa in 1961, held Nathu La in 1967 and took IV Corps across the Meghna to Dhaka in 1971.", url: `${SITE}/biography`, mainEntityOfPage: `${SITE}/biography` }} />
       <section className="hero has-portrait hero-band hero-cine">
         <div className="hero-inner">
           <div className="hero-text">
@@ -39,7 +44,7 @@ export default async function Home() {
           {portrait?.url && (
             <figure className="portrait">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={portrait.url} alt={portrait.caption ?? "Lt Gen Sagat Singh"} />
+              <img src={portrait.url} alt={`${portrait.caption ?? "Lt Gen Sagat Singh"} (${portrait.credit ?? "portrait"})`} width={1000} height={1176} fetchPriority="high" decoding="async" />
               <figcaption>{portrait.caption}{portrait.credit ? <span>{portrait.credit}</span> : null}</figcaption>
             </figure>
           )}

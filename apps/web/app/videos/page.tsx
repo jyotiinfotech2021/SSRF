@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import { get, type Book } from "@/lib/api";
 import { PageHead, StatusTag, NatureTag, Unavailable, Empty } from "@/components/ui";
 
-export const metadata: Metadata = { title: "Videos", description: "Documentaries, lectures and recordings about Lt Gen Sagat Singh." };
+export const metadata: Metadata = pageMeta("Videos and lectures about Lt Gen Sagat Singh", "Documentaries, lectures and news videos about Lt Gen Sagat Singh, catalogued with their producers, dates and a note on how well each is supported.", "/videos");
 
 function embed(url?: string) {
   if (!url) return null;

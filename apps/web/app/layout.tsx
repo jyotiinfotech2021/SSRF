@@ -7,22 +7,34 @@ import Header from "@/components/Header";
 import Toast from "@/components/Toast";
 import AnimatedFavicon from "@/components/AnimatedFavicon";
 import { Mark } from "@/components/Mark";
+import JsonLd from "@/components/JsonLd";
+import BreadcrumbLd from "@/components/BreadcrumbLd";
+import { SITE, SITE_NAME, OG_DEFAULT } from "@/lib/seo";
 
+const DESC = "A documented, source-referenced record of the life and campaigns of Lt Gen Sagat Singh, with evidence classifications, an archive and a learning centre.";
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.SITE_URL ?? "http://localhost:3000"),
-  title: { default: "Sagat Singh Research Foundation (SSRF)", template: "%s | SSRF" },
-  description: "The Sagat Singh Research Foundation: a documented, source-referenced record of the life and campaigns of Lt Gen Sagat Singh.",
-  openGraph: { siteName: "Sagat Singh Research Foundation", type: "website" },
+  metadataBase: new URL(SITE),
+  title: { default: "Sagat Singh Research Foundation: Lt Gen Sagat Singh, 1919–2001", template: "%s | SSRF" },
+  description: DESC,
+  applicationName: SITE_NAME,
+  authors: [{ name: SITE_NAME }],
+  alternates: { canonical: "/" },
+  openGraph: { title: "Sagat Singh Research Foundation (SSRF)", description: DESC, url: "/", siteName: SITE_NAME, type: "website", locale: "en_IN", images: [{ url: OG_DEFAULT, width: 1200, height: 630, alt: "Lt Gen Sagat Singh, 1919–2001: Sagat Singh Research Foundation" }] },
+  twitter: { card: "summary_large_image", title: "Sagat Singh Research Foundation (SSRF)", description: DESC, images: [OG_DEFAULT] },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+  formatDetection: { telephone: false, email: false, address: false },
 };
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#2F391C" };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const who = await me();
   const settings = await get<Record<string, { contact?: string; governance?: string; email?: string }>>("/api/site");
-  const contact = settings?.settings;
+  const contact = settings?.settings as { email?: string; social?: string } | undefined;
   void (null as Source | null);
+  // Only real, published links go into structured data: social profiles come from the foundation's own settings.
+  const sameAs = (contact?.social ?? "").split("\n").map((l) => l.split("|")[1]?.trim()).filter((u): u is string => !!u && /^https:\/\//.test(u));
   return (
-    <html lang="en">
+    <html lang="en-IN">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -30,6 +42,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil+Display:wght@600;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet" />
       </head>
       <body>
+        <JsonLd data={[
+          { "@context": "https://schema.org", "@type": "Organization", "@id": `${SITE}/#organization`, name: SITE_NAME, alternateName: "SSRF", url: SITE, logo: `${SITE}/apple-icon.png`,
+            description: "A research foundation that preserves the evidence of Lt Gen Sagat Singh's career, researches his campaigns and makes that history usable by schools, researchers and the public.",
+            ...(contact?.email ? { email: contact.email } : {}), ...(sameAs.length ? { sameAs } : {}) },
+          { "@context": "https://schema.org", "@type": "WebSite", "@id": `${SITE}/#website`, url: SITE, name: SITE_NAME, inLanguage: "en-IN", publisher: { "@id": `${SITE}/#organization` },
+            potentialAction: { "@type": "SearchAction", target: { "@type": "EntryPoint", urlTemplate: `${SITE}/search?q={search_term_string}` }, "query-input": "required name=search_term_string" } },
+        ]} />
+        <BreadcrumbLd site={SITE} />
         <a href="#main" className="skip">Skip to content</a>
         <Header signedIn={!!who.id} editor={isEditor(who)} />
         <main className="wrap" id="main" tabIndex={-1}>{children}</main>

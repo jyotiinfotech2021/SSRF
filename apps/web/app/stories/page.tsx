@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import Link from "next/link";
 import { Suspense } from "react";
 import { get, me, canContribute, isEditor, type Story, type Campaign } from "@/lib/api";
@@ -9,7 +10,7 @@ import CorrectionBox from "@/components/CorrectionBox";
 import { StoryFilters, AssessSelect } from "@/components/StoryTools";
 import { ERAS, KINDS, NATURE } from "@/lib/ref";
 
-export const metadata: Metadata = { title: "Stories", description: "Articles, memoirs, anecdotes and videos from members, each labelled by the nature of the material and how well its claims are supported." };
+export const metadata: Metadata = pageMeta("Stories and memoirs about Lt Gen Sagat Singh", "Articles, memoirs, anecdotes and videos from members, each labelled by the nature of the material and by how well its claims are supported.", "/stories");
 type SP = { searchParams: Promise<{ kind?: string; era?: string; material?: string; assess?: string }> };
 const WEAK = new Set(["attributed", "unverified", "disputed"]);
 

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import Link from "next/link";
 import { get, type Campaign } from "@/lib/api";
 import { PageHead, Unavailable, Empty } from "@/components/ui";
 
-export const metadata: Metadata = { title: "Campaigns", description: "Goa 1961, Nathu La and Cho La, and the Meghna crossing: the campaigns of Lt Gen Sagat Singh." };
+export const metadata: Metadata = pageMeta("Campaigns: Goa 1961, Nathu La 1967, Meghna 1971", "The campaigns of Lt Gen Sagat Singh: the liberation of Goa, the defence of Nathu La and Cho La, and the Meghna crossing to Dhaka, each with sources.", "/campaigns");
 
 export default async function Campaigns() {
   const camps = await get<Campaign[]>("/api/campaigns");

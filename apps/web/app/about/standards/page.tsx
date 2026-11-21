@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import Link from "next/link";
 import { PageHead, AssessTag } from "@/components/ui";
 import { ASSESS, ASSESS_HELP, NATURE, NATURE_HELP, STAGES } from "@/lib/ref";
 
-export const metadata: Metadata = { title: "Research standards", description: "How the foundation classifies evidence, ranks sources, separates first-hand accounts from documented fact, and protects sensitive information." };
+export const metadata: Metadata = pageMeta("Research standards: how evidence is classified", "How the foundation classifies evidence, ranks sources, separates first-hand accounts from documented fact, and protects sensitive information.", "/about/standards");
 
 export default function Standards() {
   return (

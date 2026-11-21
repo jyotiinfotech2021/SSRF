@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import Link from "next/link";
 import { get, me, isEditor, type Quiz } from "@/lib/api";
 import { Unavailable } from "@/components/ui";
 import QuizApp from "@/components/QuizApp";
 import { HeroMap, MiniMap, MeghnaMap, LCAMPS } from "@/components/LearnMaps";
 
-export const metadata: Metadata = { title: "Learning Centre", description: "Learn the story of Lt Gen Sagat Singh: four chapters, historical evidence to read for yourself, a quiz, classroom material and resources for teachers." };
+export const metadata: Metadata = pageMeta("Learning Centre: the story of Lt Gen Sagat Singh", "Learn the story of Lt Gen Sagat Singh: four chapters, historical evidence to read for yourself, a quiz, classroom material and resources for teachers.", "/learn");
 type SP = { searchParams: Promise<{ lvl?: string; topic?: string }> };
 const NATCOL: Record<string, string> = { "Primary source": "#762633", "Secondary research": "#3d5a80" };
 
@@ -20,7 +21,7 @@ export default async function Learn({ searchParams }: SP) {
         <div className="llanding-inner lchead">
           <div>
             <p className="eyebrow">SSRF Learning Centre</p>
-            <h2>Learn the story of Lt Gen Sagat Singh</h2>
+            <h1>Learn the story of Lt Gen Sagat Singh</h1>
             <p>For students, teachers and anyone meeting his story for the first time: four campaigns, a quiz, classroom resources, and real historical evidence to read for yourself.</p>
             <div className="entry"><a className="btn" href="#quiz">Take the quiz</a><a className="btn ghost" href="#l-camps">Explore the campaigns</a><a className="btn ghost" href="#l-teach">For teachers</a></div>
           </div>
