@@ -4,7 +4,7 @@ const API_URL = process.env.API_URL ?? "http://localhost:5080";
 
 export type Source = { id: string; author: string; title: string; publisher?: string | null; date?: string | null; accessed?: string | null; nature: string; url?: string | null; note?: string | null };
 export type Cite = { id: number; sourceId: string; loc?: string | null; position: number };
-export type Claim = { id: string; scope: string; heading: string; year?: string | null; text: string; assessment: string; status: string; established?: string | null; unresolved?: string | null; order: number; citations: Cite[] };
+export type Claim = { id: string; reviewedAt?: string | null; scope: string; heading: string; year?: string | null; text: string; assessment: string; status: string; established?: string | null; unresolved?: string | null; order: number; citations: Cite[] };
 export type Campaign = { id: string; name: string; order: number; data: Record<string, unknown> };
 export type Entity = { id: string; type: string; name: string; role?: string | null; period?: string | null; camps: string[]; cites: string[] };
 export type Chapter = { id: string; name: string; order: number; purpose: string[]; coordinator?: string | null; active: boolean };

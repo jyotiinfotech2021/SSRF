@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Ssrf.Api.Data;
@@ -35,7 +36,26 @@ public class PublicController(SsrfDbContext db) : ControllerBase
     [HttpGet("stories")] public async Task<IActionResult> Stories() => Ok(await db.Stories.AsNoTracking().Where(s => s.Status == "published").OrderByDescending(s => s.CreatedAt).Take(1000).ToListAsync());
     [HttpGet("stories/{id}")] public async Task<IActionResult> Story(string id) => await db.Stories.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id && s.Status == "published") is { } s ? Ok(s) : NotFound();
 
-    [HttpGet("archive")] public async Task<IActionResult> Archive() => Ok(await db.Archive.AsNoTracking().OrderBy(a => a.Id).ToListAsync());
+    /// <summary>The catalogue list. Each item carries a thumbnail URL when it has a public image (restricted items never do).</summary>
+    [HttpGet("archive")]
+    public async Task<IActionResult> Archive()
+    {
+        var items = await db.Archive.AsNoTracking().OrderBy(a => a.Id).ToListAsync();
+        var firstImage = await (from af in db.ArchiveFiles.AsNoTracking() join f in db.Files.AsNoTracking() on af.FileId equals f.Id
+                                where !f.Restricted && f.ContentType.StartsWith("image/") && f.StorageKey != ""
+                                orderby af.ArchiveItemId, af.Position select new { af.ArchiveItemId, f.Id }).ToListAsync();
+        var byItem = firstImage.GroupBy(x => x.ArchiveItemId).ToDictionary(g => g.Key, g => "/api/files/" + g.First().Id);
+        var web = new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web);
+        return Ok(items.Select(a =>
+        {
+            var n = System.Text.Json.JsonSerializer.SerializeToNode(a, web)!.AsObject();
+            string? thumb = null;
+            if (a.Access != "Restricted")
+                thumb = byItem.GetValueOrDefault(a.Id) ?? (a.Data.RootElement.TryGetProperty("thumb", out var t) && t.ValueKind == System.Text.Json.JsonValueKind.String ? t.GetString() : null);
+            n["thumb"] = thumb;
+            return n;
+        }));
+    }
 
     [HttpGet("archive/{id}")]
     public async Task<IActionResult> ArchiveOne(string id)

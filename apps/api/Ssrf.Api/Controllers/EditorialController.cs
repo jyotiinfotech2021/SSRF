@@ -11,6 +11,7 @@ using Ssrf.Api.Services;
 
 namespace Ssrf.Api.Controllers;
 
+public record AssessDto(string Assessment, string? Reason);
 public record AssignDto(string? Assignee, DateOnly? Due, string? Priority, string? Stage);
 public record ClaimEditDto(string Heading, string? Year, string Text, string Assessment, string Status, string? Established, string? Unresolved, List<CiteDto>? Cites, string? Reason);
 public record CiteDto(string S, string? Loc);
@@ -132,6 +133,18 @@ public class EditorialController(SsrfDbContext db, EditorialService ed, UserMana
         item.Status = d.Status; item.VerNote = d.VerNote; item.ReviewedBy = Uid; item.ReviewedAt = DateTime.UtcNow;
         await db.SaveChangesAsync(); await ed.LogAsync("Status set to " + d.Status, $"{col}/{id}", item.Title, d.VerNote, Uid);
         return Ok(item);
+    }
+
+    /// <summary>Editors change how well a story's claims are supported. The change and its reason go to the revision log.</summary>
+    [HttpPut("assess/stories/{id}")]
+    public async Task<IActionResult> AssessStory(string id, AssessDto d)
+    {
+        if (new[] { "documented", "corroborated", "attributed", "unverified", "disputed" }.All(a => a != d.Assessment)) return BadRequest(new { error = "Unknown evidence classification." });
+        var s = await db.Stories.FindAsync(id); if (s == null) return NotFound();
+        if (s.AuthorId == Uid) return BadRequest(new { error = "Another editor must set the evidence classification on your own story." });
+        var before = s.Assessment; s.Assessment = d.Assessment; s.ReviewedBy = Uid; s.ReviewedAt = DateTime.UtcNow;
+        await db.SaveChangesAsync(); await ed.LogAsync("Evidence classification changed", "stories/" + id, s.Title, d.Reason, Uid, before, d.Assessment);
+        return Ok(s);
     }
 
     [HttpPut("archive/{id}/transcript")]

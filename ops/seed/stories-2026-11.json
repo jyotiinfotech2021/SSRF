@@ -1,0 +1,15 @@
+{
+  "format": "SSRF database backup",
+  "version": 3,
+  "note": "Two stories shown on the approved prototype Stories page (screenshot supplied by the foundation). Wording is as shown there. The prototype links a video on each; the link addresses were not visible, so none is recorded: add them from the live data export or the story's edit form.",
+  "collections": {
+    "stories": [
+      { "id": "story-jai-samota", "title": "Jai Samota - Author and Researcher", "kind": "Anecdote", "era": "Legacy today", "nature": "Secondary research", "assessment": "unverified", "status": "published",
+        "authorName": "Yogendra Singh Sikarwar", "createdAt": "2026-11-13T09:00:00Z", "prov": "research",
+        "body": "Jai Samota is the author of biography of Major Shaitan Singh - PVC. He has done quality research to showcase the work of Lt Gen Sagat Singh." },
+      { "id": "story-studyiq-hindi", "title": "StudyIQ Video - Hindi", "kind": "Video", "era": "Legacy today", "nature": "Secondary research", "assessment": "unverified", "status": "published",
+        "authorName": "Yogendra Singh Sikarwar", "createdAt": "2026-11-13T09:05:00Z", "prov": "research",
+        "body": "Study IQ is a platform which prepares students for Civil Service Exams." }
+    ]
+  }
+}

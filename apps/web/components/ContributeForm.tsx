@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { call } from "@/lib/client";
 import { toast } from "./Toast";
 import { ACATS, ACOLL, BKINDS, ERAS, ETYPES, KINDS, PKINDS, RIGHTS } from "@/lib/ref";
@@ -62,8 +62,14 @@ const FIELDS: Record<Kind, F[]> = {
 };
 export const KIND_LABEL: Record<Kind, string> = { story: "Share a story", book: "Add a library item", place: "Add a recognition entry", event: "Propose an event", archive: "Offer an archive item" };
 
-export default function ContributeForm({ kind, camps, editor }: { kind: Kind; camps: Camp[]; editor?: boolean }) {
+export default function ContributeForm({ kind, camps, editor, openOnHash }: { kind: Kind; camps: Camp[]; editor?: boolean; openOnHash?: string }) {
   const [open, setOpen] = useState(false);
+  // A hero button elsewhere on the page can link to #catalogue to open this form directly.
+  useEffect(() => {
+    if (!openOnHash) return;
+    const check = () => { if (window.location.hash === openOnHash) setOpen(true); };
+    check(); window.addEventListener("hashchange", check); return () => window.removeEventListener("hashchange", check);
+  }, [openOnHash]);
   const [busy, setBusy] = useState(false);
   if (!open) return <button className="btn" onClick={() => setOpen(true)}>{KIND_LABEL[kind]}</button>;
   return (

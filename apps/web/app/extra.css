@@ -304,3 +304,27 @@ summary { font-size: 1.2rem; font-weight: 700; letter-spacing: .03em; }
 .hero-mark-text span { margin-top: .3rem; }
 .hero-cine .hero-mark svg { width: 2.9rem; height: 2.9rem; }
 @media (prefers-reduced-motion: reduce) { .hero-mark-text b { animation: none; background-position: 60% 0; } }
+
+/* Biography timeline (from the prototype): a native <details> gives the "Sources" fold with no script */
+.bio-title { font-family: var(--stencil); font-size: var(--fs-page); color: var(--burgundy); margin: 1rem 0 .3rem; }
+details.evdet > summary { list-style: none; cursor: pointer; display: inline-block; }
+details.evdet > summary::-webkit-details-marker { display: none; }
+details.evdet > summary::after { content: " +"; }
+details.evdet[open] > summary::after { content: " \2212"; }
+details.evdet > summary { text-decoration: underline; text-underline-offset: 3px; color: var(--burgundy); font-size: 1.05rem; }
+ol.timeline h3 { font-size: 1.5rem; margin: .15rem 0 .3rem; }
+ol.timeline li { max-width: 46rem; }
+
+/* Archive chips, collection tiles and cards are links now: no underline */
+a.atype, a.acoll, a.acard { text-decoration: none; color: inherit; }
+a.acoll b, a.acoll span, a.atype { text-decoration: none; }
+
+/* Stories: filter bar, card actions, editor row */
+.story-bar { display: flex; flex-wrap: wrap; gap: .8rem 1rem; align-items: flex-start; justify-content: space-between; margin: 1rem 0 1.2rem; }
+.story-filters { display: flex; flex-wrap: wrap; gap: .6rem; }
+.story-filters select { padding: .55rem .8rem; font: inherit; border: 1px solid #b9b6a8; background: #fff; border-radius: 2px; min-width: 9.5rem; }
+.story-item { border-top: 1px solid var(--archive); padding: 1.1rem 0; }
+.story-item h3 { margin: .3rem 0 .1rem; }
+.story-actions { display: flex; flex-wrap: wrap; gap: .8rem 1.1rem; align-items: center; margin: .4rem 0; }
+.story-editor { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-top: .7rem; }
+.assess-select { padding: .5rem .8rem; font: inherit; min-width: 16rem; border: 1px solid #b9b6a8; background: #fffdf7; border-radius: 2px; }

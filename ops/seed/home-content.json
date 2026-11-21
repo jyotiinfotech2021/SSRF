@@ -37,7 +37,7 @@
       }
     ],
     "archive": [
-      { "id": "SSRF-DO-00001", "title": "Lt Gen Sagat Singh Museum, Gun House, Bikaner", "category": "Document", "collection": "Sagat Singh Personal Archive", "access": "Public", "status": "checking", "nature": "Primary source", "description": "Plan for the Gun House museum in Bikaner.", "verNote": "Catalogued; awaiting verification by a second editor" }
+      { "id": "SSRF-DO-00001", "title": "Lt Gen Sagat Singh Museum, Gun House, Bikaner", "category": "Document", "collection": "Sagat Singh Personal Archive", "access": "Public", "status": "checking", "nature": "Primary source", "description": "Plan for the Gun House museum in Bikaner.", "verNote": "Catalogued; awaiting verification by a second editor", "thumb": "/home/museum-building.jpg", "approxDate": "2026" }
     ],
     "events": [
       { "id": "vijay-diwas-2026", "title": "Vijay Diwas", "type": "Commemorative", "date": "2026-12-16", "location": "Nationwide", "place": "Nationwide", "status": "published", "description": "Vijay Diwas, marking the 1971 victory." },

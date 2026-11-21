@@ -1,43 +1,93 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { get, me, canContribute, isEditor, type ArchiveItem, type Campaign } from "@/lib/api";
-import { PageHead, StatusTag, NatureTag, Unavailable, Empty } from "@/components/ui";
+import { Unavailable, Empty } from "@/components/ui";
 import ContributeForm from "@/components/ContributeForm";
-import { ACATS, ACOLL } from "@/lib/ref";
+import { ACOLL } from "@/lib/ref";
+import { ACOLLMETA, ATYPES, AIcon, collMeta } from "@/lib/archive";
 
-export const metadata: Metadata = { title: "Digital archive", description: "Photographs, documents, letters, maps, recordings and newspaper items, catalogued with rights and provenance." };
-type SP = { searchParams: Promise<{ q?: string; cat?: string; coll?: string; page?: string }> };
+export const metadata: Metadata = { title: "Digital archive", description: "Photographs, letters, documents, maps, recordings and newspaper items, each with a permanent identifier, origin, credit and rights." };
+type Item = ArchiveItem & { thumb?: string | null };
+type SP = { searchParams: Promise<{ atype?: string; acoll?: string; page?: string }> };
 
 export default async function Archive({ searchParams }: SP) {
   const sp = await searchParams;
-  const [items, who, camps] = await Promise.all([get<ArchiveItem[]>("/api/archive"), me(), get<Campaign[]>("/api/campaigns")]);
-  const q = (sp.q ?? "").toLowerCase();
-  const rows = (items ?? []).filter((a) => (!sp.cat || a.category === sp.cat) && (!sp.coll || a.collection === sp.coll) &&
-    (!q || `${a.title} ${a.id} ${a.description ?? ""} ${JSON.stringify(a.data)}`.toLowerCase().includes(q)));
-  const page = Math.max(1, +(sp.page ?? 1)); const per = 20;
-  const shown = rows.slice((page - 1) * per, page * per);
-  const qs = (p: number) => { const u = new URLSearchParams(); if (sp.q) u.set("q", sp.q); if (sp.cat) u.set("cat", sp.cat); if (sp.coll) u.set("coll", sp.coll); u.set("page", String(p)); return `?${u}`; };
+  const [items, who, camps] = await Promise.all([get<Item[]>("/api/archive"), me(), get<Campaign[]>("/api/campaigns")]);
+  const editor = isEditor(who);
+  const vis = (items ?? []).filter((a) => editor || a.status !== "rejected");
+  const cnt = (k: "collection" | "category", v: string) => vis.filter((a) => a[k] === v).length;
+  const list = vis.filter((a) => (!sp.acoll || a.collection === sp.acoll) && (!sp.atype || a.category === sp.atype)).sort((a, b) => a.id.localeCompare(b.id));
+  const photos = vis.filter((a) => a.access !== "Restricted" && a.thumb).slice(-5).reverse();
+  const started = ACOLL.filter((c) => cnt("collection", c)).length;
+  const page = Math.max(1, +(sp.page ?? 1)); const per = 20; const shown = list.slice(0, page * per);
+  const q = (o: Record<string, string | undefined>) => { const u = new URLSearchParams(); const m = { atype: sp.atype, acoll: sp.acoll, ...o }; for (const [k, v] of Object.entries(m)) if (v) u.set(k, v); const s = u.toString(); return s ? `/archive?${s}` : "/archive"; };
+  const typeLabel = ATYPES.find((x) => x[0] === sp.atype)?.[1];
   return (
     <>
-      <PageHead title="Digital archive" lead="The catalogue record is public. Restricted items are available to researchers on request." />
+      <section className="alanding">
+        <div className="alanding-inner">
+          <div className="alanding-text">
+            <p className="eyebrow">SSRF Digital archive</p>
+            <h2>Photographs, letters and records of his life</h2>
+            <p>Every item carries a permanent identifier, its origin, credit and rights. Originals stay unaltered; what you see are viewing copies.</p>
+            <p className="alanding-stats"><b>{vis.length}</b> {vis.length === 1 ? "item" : "items"} catalogued · <b>{started}</b> of {ACOLL.length} collections started</p>
+            <div className="entry">
+              {canContribute(who) ? <a className="btn" href="#catalogue">{editor ? "Catalogue an item" : "Contribute an item"}</a> : <Link className="btn" href="/login?next=/archive">Sign in to contribute an item</Link>}
+            </div>
+          </div>
+          <div className={`alanding-mosaic n${Math.min(photos.length, 5)}`}>
+            {photos.length ? photos.map((a) => (
+              <Link key={a.id} href={`/archive/${a.id}`} title={a.title}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={a.thumb!} alt={a.title} loading="lazy" /><code>{a.id}</code>
+              </Link>)) : <div className="mosaic-empty"><AIcon t="Photograph" big /><p>Photographs will appear here as they are catalogued.</p></div>}
+          </div>
+        </div>
+      </section>
+
       {!items && <Unavailable />}
-      <form method="get" className="inline-form" role="search">
-        <input name="q" defaultValue={sp.q} placeholder="Search the catalogue" aria-label="Search the catalogue" />
-        <select name="cat" defaultValue={sp.cat ?? ""} aria-label="Category"><option value="">All categories</option>{ACATS.map((c) => <option key={c}>{c}</option>)}</select>
-        <select name="coll" defaultValue={sp.coll ?? ""} aria-label="Collection"><option value="">All collections</option>{ACOLL.map((c) => <option key={c}>{c}</option>)}</select>
-        <button className="btn small" type="submit">Search</button>
-      </form>
-      <p className="meta">{rows.length} item{rows.length === 1 ? "" : "s"}</p>
-      {shown.length ? shown.map((a) => (
-        <article key={a.id} className="acard">
-          <h3><Link href={`/archive/${a.id}`}>{a.title}</Link></h3>
-          <p className="meta">{a.id} · {a.category} · {a.collection}{a.access === "Restricted" ? " · Restricted" : ""}</p>
-          <p>{a.description}</p>
-          <p className="tags"><StatusTag s={a.status} /> <NatureTag n={a.nature} /></p>
-        </article>)) : <Empty>No archive items match.</Empty>}
-      <p className="actions">{page > 1 && <Link className="btn ghost small" href={qs(page - 1)}>Previous</Link>} {page * per < rows.length && <Link className="btn ghost small" href={qs(page + 1)}>Next</Link>}</p>
-      <h2 className="sect">Offer an item</h2>
-      {canContribute(who) ? <ContributeForm kind="archive" camps={(camps ?? []).map((c) => ({ id: c.id, name: c.name }))} editor={isEditor(who)} /> : <p className="notice">{who.id ? "To contribute, ask the foundation to invite you as a contributor." : <>Please <Link href="/account">sign in</Link> to offer an item.</>}</p>}
+      <div id="catalogue">{canContribute(who) && <ContributeForm kind="archive" camps={(camps ?? []).map((c) => ({ id: c.id, name: c.name }))} editor={editor} openOnHash="#catalogue" />}</div>
+
+      <div className="atypes" role="group" aria-label="Filter by type">
+        <Link className={`atype${!sp.atype ? " on" : ""}`} href={q({ atype: undefined, page: undefined })}>All <i>{vis.length}</i></Link>
+        {ATYPES.map(([k, l]) => <Link key={k} className={`atype${sp.atype === k ? " on" : ""}`} href={q({ atype: k, page: undefined })}><AIcon t={k} />{l} <i>{cnt("category", k)}</i></Link>)}
+      </div>
+
+      <h3 className="asect">Collections</h3>
+      <div className="acolls">
+        {Object.keys(ACOLLMETA).map((c) => {
+          const [code, col] = collMeta(c), n = cnt("collection", c);
+          return (
+            <Link key={c} className={`acoll${sp.acoll === c ? " on" : ""}${n ? "" : " empty"}`} style={{ "--cc": col } as React.CSSProperties} href={q({ acoll: sp.acoll === c ? undefined : c, page: undefined })}>
+              <i>{code}</i><b>{c.replace(/ Collection$/, "")}</b><span>{n} {n === 1 ? "item" : "items"}</span>
+            </Link>);
+        })}
+      </div>
+
+      <h3 className="asect">{sp.acoll || sp.atype ? <>{typeLabel ?? "Items"}{sp.acoll ? ` in ${sp.acoll}` : ""} <Link className="link" href="/archive">Clear filters</Link></> : "All items"}</h3>
+      {list.length ? (
+        <>
+          <div className="agrid">
+            {shown.map((a) => {
+              const [code, col] = collMeta(a.collection), r = a.access === "Restricted";
+              return (
+                <Link key={a.id} className={`acard${r ? " restricted" : ""}`} href={`/archive/${a.id}`} style={{ "--cc": col } as React.CSSProperties}>
+                  <div className="acard-img">
+                    {a.thumb ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={a.thumb} alt="" loading="lazy" /> : <div className="acard-ph"><AIcon t={a.category} big /><span>{a.category || "Item"}</span></div>}
+                    {r && <span className="acard-lock">Restricted</span>}
+                    <code className="acard-id">{a.id}</code>
+                  </div>
+                  <div className="acard-body">
+                    <span className="acard-coll"><i>{code}</i>{a.collection ?? ""}</span>
+                    <b>{a.title}</b>
+                    <span className="acard-meta"><AIcon t={a.category} />{[a.category, (a.data as { approxDate?: string }).approxDate].filter(Boolean).join(" · ")}</span>
+                  </div>
+                </Link>);
+            })}
+          </div>
+          {shown.length < list.length && <p><Link className="btn ghost small" href={q({ page: String(page + 1) })}>Show {Math.min(per, list.length - shown.length)} more of {list.length - shown.length}</Link></p>}
+        </>
+      ) : <Empty>{vis.length ? "Nothing matches these filters yet." : "The archive's first items will be family photographs, documents and recorded interviews. If you hold any, contribute them."}</Empty>}
     </>
   );
 }
