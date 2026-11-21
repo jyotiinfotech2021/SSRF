@@ -4,6 +4,7 @@ import { pageMeta } from "@/lib/seo";
 import { get, me, canContribute, isEditor, type Book, type Campaign } from "@/lib/api";
 import { Unavailable, HistoryPanel } from "@/components/ui";
 import { englishTitle, usefulNote } from "@/lib/text";
+import AutoForm from "@/components/AutoForm";
 import ContributeForm from "@/components/ContributeForm";
 import CorrectionBox from "@/components/CorrectionBox";
 import { StatusForm, DeleteButton } from "@/components/Interact";
@@ -57,12 +58,12 @@ export default async function Videos({ searchParams }: { searchParams: Promise<{
       <h1 className="bio-title">Videos</h1>
       <p className="sub">Documentaries, interviews, talks and commemorations about him, made by other people. Every card opens the original video, so views and credit stay with its creator.</p>
       {!books && <Unavailable />}
-      <form className="bar" method="get" action="/videos">
+      <AutoForm className="bar" action="/videos">
         <select name="camp" defaultValue={sp.camp ?? ""} aria-label="Filter by campaign"><option value="">All campaigns</option>{cl.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
-        <button className="btn small ghost" type="submit">Apply</button>
-        <span className="meta">{all.length} videos</span><span className="grow" />
+        <noscript><button className="btn small ghost" type="submit">Apply</button></noscript>
+        <span className="meta">{sp.camp ? `${all.filter((b) => (b.camps ?? []).includes(sp.camp!)).length} of ${all.length} videos` : `${all.length} videos`}</span>{sp.camp && <Link className="link" href="/videos">Show all videos</Link>}<span className="grow" />
         <a className="btn small" href="#suggest">Suggest a video</a>
-      </form>
+      </AutoForm>
       {books && (sp.camp ? (() => { const l = all.filter((b) => (b.camps ?? []).includes(sp.camp!)); return l.length ? grid(l) : <p className="empty">No videos for this campaign yet.</p>; })() : (
         <>
           {feat.length > 0 && <><h2 className="sect">Featured documentaries</h2>{grid(feat, true)}</>}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { pageMeta } from "@/lib/seo";
 import { get, me, type Member, type Chapter, type Campaign } from "@/lib/api";
+import AutoForm from "@/components/AutoForm";
 import { Unavailable } from "@/components/ui";
 
 export const metadata: Metadata = pageMeta("Members of the Sagat Singh Research Foundation", "Members of the Sagat Singh Research Foundation who chose to be listed: researchers, veterans, family members, students and supporters.", "/members");
@@ -56,14 +57,14 @@ export default async function Members({ searchParams }: SP) {
       </div></section>
       {!members && <Unavailable />}
       <div className="mgroups">{MGROUPS.map(([k, l, c]) => <Link key={k} className={`mgrp${sp.grp === k ? " on" : ""}`} style={{ ["--mc" as string]: c }} href={href(sp.grp === k ? undefined : k)}><b>{l}</b><span>{gcount(k)}</span></Link>)}</div>
-      <form className="bar" method="get" action="/members">
+      <AutoForm className="bar" action="/members">
         {sp.grp && <input type="hidden" name="grp" value={sp.grp} />}
         <select name="chapter" defaultValue={sp.chapter ?? ""} aria-label="Chapter"><option value="">All chapters</option>{chapters?.map((c) => <option key={c.id}>{c.name}</option>)}</select>
-        <button className="btn small ghost" type="submit">Apply</button>
+        <noscript><button className="btn small ghost" type="submit">Apply</button></noscript>
         {filtered && <Link className="link" href="/members">Show all members</Link>}
         <span className="grow" />
         {who.id ? <Link className="btn small ghost" href="/account">Edit my profile</Link> : <Link className="btn small" href="/register">Become a member</Link>}
-      </form>
+      </AutoForm>
       {members && !list.length && <p className="empty">{all.length ? "No listed members match." : "No members have chosen to be listed yet."}</p>}
       {list.length > 0 && (filtered
         ? <div className="mgrid">{list.map((m) => <Card key={m.id} m={m} you={m.id === who.id} camps={cl} />)}</div>

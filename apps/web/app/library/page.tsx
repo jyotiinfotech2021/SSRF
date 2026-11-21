@@ -4,6 +4,7 @@ import JsonLd from "@/components/JsonLd";
 import Link from "next/link";
 import { get, me, canContribute, isEditor, type Book, type Campaign } from "@/lib/api";
 import { HistoryPanel, Unavailable } from "@/components/ui";
+import AutoForm from "@/components/AutoForm";
 import ContributeForm from "@/components/ContributeForm";
 import { usefulNote } from "@/lib/text";
 import CorrectionBox from "@/components/CorrectionBox";
@@ -100,7 +101,7 @@ export default async function Library({ searchParams }: SP) {
         </form>
       </div></section>
       {!books && <Unavailable />}
-      <form className="lfilters" method="get" action="/library">
+      <AutoForm className="lfilters" action="/library">
         <div className="atypes" role="group" aria-label="Filter by type">
           <Link className={`atype${!sp.grp ? " on" : ""}`} href={href()}>All <i>{all.length}</i></Link>
           {LGROUPS.filter((g) => gcount(g[0])).map(([k, l]) => <Link key={k} className={`atype${sp.grp === k ? " on" : ""}`} href={href(k)}>{l} <i>{gcount(k)}</i></Link>)}
@@ -110,11 +111,11 @@ export default async function Library({ searchParams }: SP) {
           <select name="camp" defaultValue={sp.camp ?? ""} aria-label="Filter by campaign"><option value="">All campaigns</option>{camps?.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
           <select name="sort" defaultValue={sp.sort ?? "new"} aria-label="Sort"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="title">Title A–Z</option></select>
           <label className="lverchk"><input type="checkbox" name="ver" value="1" defaultChecked={!!sp.ver} /> Verified only</label>
-          <button className="btn small ghost" type="submit">Apply</button>
+          <noscript><button className="btn small ghost" type="submit">Apply</button></noscript>
           <span className="grow" />
           <a className="btn small" href="#suggest">Suggest a publication</a>
         </div>
-      </form>
+      </AutoForm>
       <p className="meta">Looking for documentaries and interviews? They are on the <Link href="/videos">Videos</Link> page.</p>
       {books && (filtered ? (
         <>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { pageMeta } from "@/lib/seo";
 import { get, me, isEditor, type Source, type Claim, type Campaign } from "@/lib/api";
+import AutoForm from "@/components/AutoForm";
 import { Unavailable } from "@/components/ui";
 import AddSource from "@/components/AddSource";
 import { NATURE, NATURE_HELP } from "@/lib/ref";
@@ -53,13 +54,13 @@ export default async function Sources({ searchParams }: SP) {
         <Link key={n} className={`natcard${sp.nature === n ? " on" : ""}`} style={{ ["--nc" as string]: NATCOL[n] }} href={href(sp.nature === n ? undefined : n)}>
           <span className="snat">{n}</span><p>{NATURE_HELP[n]}</p><i>{cnt(n)} {cnt(n) === 1 ? "source" : "sources"}</i>
         </Link>))}</div>
-      <form className="bar" method="get" action="/sources" style={{ marginTop: "1rem" }}>
+      <AutoForm className="bar" action="/sources" style={{ marginTop: "1rem" }}>
         {sp.q && <input type="hidden" name="q" value={sp.q} />}{sp.nature && <input type="hidden" name="nature" value={sp.nature} />}
         <select name="sort" defaultValue={sp.sort ?? "nature"} aria-label="Sort"><option value="nature">By classification</option><option value="cited">Most cited first</option><option value="title">Title A–Z</option></select>
-        <button className="btn small ghost" type="submit">Apply</button>
+        <noscript><button className="btn small ghost" type="submit">Apply</button></noscript>
         {(sp.nature || q) && <Link className="link" href="/sources">Clear search and filter</Link>}
         <span className="meta">{list.length} of {all.length} sources</span>
-      </form>
+      </AutoForm>
       {list.length ? (
         <div className="sgrid">{list.map((s) => {
           const key = s.nature !== "Tertiary source" && s.n >= Math.max(3, Math.ceil(max * 0.5)), bars = Math.min(5, Math.round((5 * s.n) / max)), blob = s.url?.startsWith("/_blob/");
