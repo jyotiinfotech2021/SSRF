@@ -13,6 +13,11 @@ cd apps/web; $env:API_URL="http://localhost:5080"; npm run dev
 ## Production stack
 `docker compose up -d --build` after copying `.env.example` to `.env`. Services: `db`, `api` (migrates on start), `web`, `backup` (nightly dump + uploads archive, 14-day retention). Put a TLS-terminating reverse proxy in front of `web:3000`; the API is not published. Set `SITE_URL` to the public https address. Cookies are `Secure` in Production.
 
+## Password reset email
+"Forgot password?" sends a one-time link (valid 24 hours, usable once). It needs an SMTP server: set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` and `SMTP_FROM` in `.env` (any provider: your mail host, SES, SendGrid SMTP, Gmail app password). With no `SMTP_HOST` the forgot-password page tells people honestly that reset by email is not set up. Links are built from `SITE_URL`.
+Answers never reveal whether an email has an account, and at most one reset email per address per minute is sent. Rate limiting applies only to register, login, forgot and reset, per visitor address (taken from X-Forwarded-For when `Proxy__TrustForwardedHeaders` is true).
+Tested end to end on 21 Nov 2026 against a local test mailbox (real SMTP): request, delivery, new password, old password refused, link single-use.
+
 ## Backup and recovery
 - Nightly: `pg_dump --format=custom`, uploads tarball, SHA-256, dump verified with `pg_restore --list`.
 - Copy `backups/` off the host (encrypted); the dumps contain private member data.

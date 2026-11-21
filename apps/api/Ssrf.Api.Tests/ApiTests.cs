@@ -4,15 +4,28 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Npgsql;
+using Ssrf.Api.Services;
 using Xunit;
 
 namespace Ssrf.Api.Tests;
+
+/// <summary>Test mailbox: records every email instead of sending it.</summary>
+public class CapturingMail : IEmailSender
+{
+    public bool IsConfigured => true;
+    public List<(string To, string Subject, string Body)> Sent { get; } = [];
+    public Task SendAsync(string to, string subject, string textBody, CancellationToken ct = default) { lock (Sent) Sent.Add((to, subject, textBody)); return Task.CompletedTask; }
+    public string? LastLinkFor(string to) { lock (Sent) { var m = Sent.LastOrDefault(x => x.To == to); return m.Body == null ? null : System.Text.RegularExpressions.Regex.Match(m.Body, @"https?://\S+").Value; } }
+}
 
 /// <summary>Spins up the real API against a throw-away PostgreSQL database (TEST_PG, default the dev container) and drops it afterwards.</summary>
 public class ApiFixture : IAsyncLifetime
 {
     public WebApplicationFactory<Program> Factory = null!;
+    public CapturingMail Mail { get; } = new();
     private string _admin = "";
     private string _db = "";
     public const string AdminEmail = "admin@tests.invalid";
@@ -29,7 +42,7 @@ public class ApiFixture : IAsyncLifetime
         Environment.SetEnvironmentVariable("Database__MigrateOnStartup", "true");
         Environment.SetEnvironmentVariable("RateLimit__AuthPerMinute", "10000"); // all tests share one IP; production keeps the default of 20
         Environment.SetEnvironmentVariable("Storage__LocalPath", Path.Combine(Path.GetTempPath(), _db));
-        Factory = new WebApplicationFactory<Program>().WithWebHostBuilder(b => b.UseEnvironment("Development"));
+        Factory = new WebApplicationFactory<Program>().WithWebHostBuilder(b => { b.UseEnvironment("Development"); b.ConfigureServices(sv => sv.Replace(ServiceDescriptor.Singleton<IEmailSender>(Mail))); });
         _ = Factory.Server; // start (runs migrations)
     }
 
@@ -137,6 +150,87 @@ public class SecurityTests(ApiFixture fx)
         var noUser = await fx.NewClient().PostAsJsonAsync("/api/auth/login", new { email = "nobody@tests.invalid", password = "not-the-password" });
         Assert.Equal(HttpStatusCode.Unauthorized, wrongPw.StatusCode);
         Assert.Equal(await wrongPw.Content.ReadAsStringAsync(), await noUser.Content.ReadAsStringAsync()); // does not reveal which accounts exist
+    }
+
+    private static (string email, string token) Parse(string link) { var q = System.Web.HttpUtility.ParseQueryString(new Uri(link).Query); return (q["email"]!, q["token"]!); }
+
+    [Fact]
+    public async Task Forgot_password_answers_the_same_for_known_and_unknown_emails_and_only_mails_real_accounts()
+    {
+        await fx.Register("forgot-known@tests.invalid");
+        var known = await fx.NewClient().PostAsJsonAsync("/api/auth/forgot", new { email = "forgot-known@tests.invalid" });
+        var unknown = await fx.NewClient().PostAsJsonAsync("/api/auth/forgot", new { email = "forgot-nobody@tests.invalid" });
+        Assert.Equal(HttpStatusCode.OK, known.StatusCode); Assert.Equal(HttpStatusCode.OK, unknown.StatusCode);
+        Assert.Equal(await known.Content.ReadAsStringAsync(), await unknown.Content.ReadAsStringAsync()); // cannot be used to find out who has an account
+        Assert.NotNull(fx.Mail.LastLinkFor("forgot-known@tests.invalid"));
+        Assert.Null(fx.Mail.LastLinkFor("forgot-nobody@tests.invalid"));
+    }
+
+    [Fact]
+    public async Task Emailed_link_lets_the_person_choose_a_new_password_once()
+    {
+        await fx.Register("reset-me@tests.invalid");
+        await fx.NewClient().PostAsJsonAsync("/api/auth/forgot", new { email = "reset-me@tests.invalid" });
+        var (email, token) = Parse(fx.Mail.LastLinkFor("reset-me@tests.invalid")!);
+        Assert.Equal("reset-me@tests.invalid", email);
+
+        var ok = await fx.NewClient().PostAsJsonAsync("/api/auth/reset", new { email, token, password = "a brand new passphrase" });
+        Assert.Equal(HttpStatusCode.OK, ok.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await fx.NewClient().PostAsJsonAsync("/api/auth/login", new { email, password = ApiFixture.Pw })).StatusCode); // old password dead
+        Assert.Equal(HttpStatusCode.OK, (await fx.NewClient().PostAsJsonAsync("/api/auth/login", new { email, password = "a brand new passphrase" })).StatusCode);
+        // the same link cannot be used a second time
+        var again = await fx.NewClient().PostAsJsonAsync("/api/auth/reset", new { email, token, password = "another passphrase here" });
+        Assert.Equal(HttpStatusCode.BadRequest, again.StatusCode);
+        Assert.Contains("not valid any more", await again.Content.ReadAsStringAsync());
+    }
+
+    [Fact]
+    public async Task Reset_refuses_a_forged_token_an_unknown_email_and_a_weak_password()
+    {
+        await fx.Register("reset-guard@tests.invalid");
+        await fx.NewClient().PostAsJsonAsync("/api/auth/forgot", new { email = "reset-guard@tests.invalid" });
+        var (email, token) = Parse(fx.Mail.LastLinkFor("reset-guard@tests.invalid")!);
+        Assert.Equal(HttpStatusCode.BadRequest, (await fx.NewClient().PostAsJsonAsync("/api/auth/reset", new { email, token = "not-a-real-token", password = "a fine long password" })).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await fx.NewClient().PostAsJsonAsync("/api/auth/reset", new { email = "ghost@tests.invalid", token, password = "a fine long password" })).StatusCode);
+        var weak = await fx.NewClient().PostAsJsonAsync("/api/auth/reset", new { email, token, password = "password1" });
+        Assert.Equal(HttpStatusCode.BadRequest, weak.StatusCode); Assert.Contains("too easy to guess", await weak.Content.ReadAsStringAsync());
+        // a refused attempt must not burn the link: it still works with a good password
+        Assert.Equal(HttpStatusCode.OK, (await fx.NewClient().PostAsJsonAsync("/api/auth/reset", new { email, token, password = "a fine long password" })).StatusCode);
+    }
+
+    [Fact]
+    public async Task Rate_limit_guards_credential_endpoints_only_so_normal_browsing_never_looks_signed_out()
+    {
+        // A separate server with a tiny limit (5/min) so the behaviour is easy to see.
+        await using var tiny = new WebApplicationFactory<Program>().WithWebHostBuilder(b => { b.UseEnvironment("Development"); b.UseSetting("RateLimit:AuthPerMinute", "5"); });
+        var c = tiny.CreateClient(); c.DefaultRequestHeaders.Add("X-Requested-With", "tests");
+        for (var i = 0; i < 40; i++) // the site checks who is signed in on every page view
+            Assert.Equal(HttpStatusCode.OK, (await c.GetAsync("/api/auth/me")).StatusCode);
+        for (var i = 0; i < 40; i++) Assert.Equal(HttpStatusCode.OK, (await c.GetAsync("/api/auth/capabilities")).StatusCode);
+        var codes = new List<HttpStatusCode>();
+        for (var i = 0; i < 8; i++) codes.Add((await c.PostAsJsonAsync("/api/auth/login", new { email = "rl@tests.invalid", password = "wrong password" })).StatusCode);
+        Assert.Contains(HttpStatusCode.TooManyRequests, codes); // guessing passwords is still throttled
+    }
+
+    [Fact]
+    public async Task Only_one_reset_email_per_address_per_minute()
+    {
+        await fx.Register("flood@tests.invalid");
+        var before = fx.Mail.Sent.Count(m => m.To == "flood@tests.invalid");
+        for (var i = 0; i < 4; i++) Assert.Equal(HttpStatusCode.OK, (await fx.NewClient().PostAsJsonAsync("/api/auth/forgot", new { email = "flood@tests.invalid" })).StatusCode); // same calm answer every time
+        Assert.Equal(before + 1, fx.Mail.Sent.Count(m => m.To == "flood@tests.invalid"));
+    }
+
+    [Fact]
+    public async Task Reset_clears_an_account_lockout()
+    {
+        await fx.Register("locked@tests.invalid");
+        for (var i = 0; i < 5; i++) await fx.NewClient().PostAsJsonAsync("/api/auth/login", new { email = "locked@tests.invalid", password = "wrong password" });
+        Assert.Equal((HttpStatusCode)423, (await fx.NewClient().PostAsJsonAsync("/api/auth/login", new { email = "locked@tests.invalid", password = ApiFixture.Pw })).StatusCode);
+        await fx.NewClient().PostAsJsonAsync("/api/auth/forgot", new { email = "locked@tests.invalid" });
+        var (email, token) = Parse(fx.Mail.LastLinkFor("locked@tests.invalid")!);
+        (await fx.NewClient().PostAsJsonAsync("/api/auth/reset", new { email, token, password = "fresh start passphrase" })).EnsureSuccessStatusCode();
+        Assert.Equal(HttpStatusCode.OK, (await fx.NewClient().PostAsJsonAsync("/api/auth/login", new { email, password = "fresh start passphrase" })).StatusCode);
     }
 
     [Fact]

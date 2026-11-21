@@ -53,7 +53,10 @@ builder.Services.AddRateLimiter(o =>
         _ => new FixedWindowRateLimiterOptions { PermitLimit = builder.Configuration.GetValue("RateLimit:AuthPerMinute", 20), Window = TimeSpan.FromMinutes(1) }));
 });
 
+builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IObjectStorage, LocalDiskStorage>();
+if (!string.IsNullOrWhiteSpace(builder.Configuration["Smtp:Host"])) builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
+else builder.Services.AddSingleton<IEmailSender, NoEmailSender>();
 builder.Services.AddScoped<EditorialService>();
 builder.Services.AddScoped<LegacyImporter>();
 builder.Services.AddControllers().AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase);
@@ -61,6 +64,14 @@ builder.Services.AddHealthChecks();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+// Behind the web container / reverse proxy the real visitor address arrives in X-Forwarded-For. Only trust it when told to (Proxy:TrustForwardedHeaders=true).
+if (app.Configuration.GetValue("Proxy:TrustForwardedHeaders", false))
+{
+    var fh = new Microsoft.AspNetCore.Builder.ForwardedHeadersOptions { ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto };
+    fh.KnownIPNetworks.Clear(); fh.KnownProxies.Clear();
+    app.UseForwardedHeaders(fh);
+}
 
 app.UseRateLimiter();
 // CSRF defence in depth on top of SameSite=Strict: state-changing calls must carry a header a cross-site form cannot set.

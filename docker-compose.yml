@@ -23,6 +23,13 @@ services:
       ConnectionStrings__Default: Host=db;Database=ssrf;Username=ssrf;Password=${POSTGRES_PASSWORD}
       Bootstrap__AdminEmail: ${ADMIN_EMAIL:?set ADMIN_EMAIL in .env}
       ASPNETCORE_ENVIRONMENT: Production
+      Site__Url: ${SITE_URL}
+      Proxy__TrustForwardedHeaders: "true"   # real visitor address comes from the web container, for fair rate limiting
+      Smtp__Host: ${SMTP_HOST:-}
+      Smtp__Port: ${SMTP_PORT:-587}
+      Smtp__User: ${SMTP_USER:-}
+      Smtp__Password: ${SMTP_PASSWORD:-}
+      Smtp__From: ${SMTP_FROM:-}
     volumes:
       - uploads:/data/storage
 

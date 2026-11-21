@@ -7,7 +7,7 @@ import { call } from "@/lib/client";
 type Mode = "login" | "register";
 
 /** Shared sign-in / create-account form. Email and password only; signs the person in and sends them on. */
-export default function AuthForm({ mode, next }: { mode: Mode; next: string }) {
+export default function AuthForm({ mode, next, notice }: { mode: Mode; next: string; notice?: string }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,6 +42,7 @@ export default function AuthForm({ mode, next }: { mode: Mode; next: string }) {
         <h1>{reg ? "Create your account" : "Welcome back"}</h1>
         <p className="auth-lead">{reg ? "Just an email and a password. You can add your details later, or never." : "Sign in to contribute, suggest corrections and follow your submissions."}</p>
 
+        {notice && <div className="auth-ok" role="status">{notice}</div>}
         <form onSubmit={submit} noValidate={false} aria-describedby={error ? "auth-error" : undefined}>
           {error && (
             <div id="auth-error" className="auth-error" role="alert">
@@ -56,7 +57,7 @@ export default function AuthForm({ mode, next }: { mode: Mode; next: string }) {
 
           <div className="auth-pwhead">
             <label htmlFor="auth-password">Password</label>
-            <button type="button" className="auth-show" onClick={() => setShow((s) => !s)} aria-pressed={show}>{show ? "Hide" : "Show"}</button>
+            <span className="auth-pwlinks">{!reg && <Link className="auth-forgot" href={`/forgot-password${email.trim() ? `?email=${encodeURIComponent(email.trim())}` : ""}`}>Forgot password?</Link>}<button type="button" className="auth-show" onClick={() => setShow((s) => !s)} aria-pressed={show}>{show ? "Hide" : "Show"}</button></span>
           </div>
           <input id="auth-password" ref={pwRef} name="password" type={show ? "text" : "password"} autoComplete={reg ? "new-password" : "current-password"}
             required minLength={reg ? 8 : 1} maxLength={128} value={password} onChange={(e) => setPassword(e.target.value)}
@@ -66,8 +67,7 @@ export default function AuthForm({ mode, next }: { mode: Mode; next: string }) {
           <button className="auth-submit" type="submit" disabled={busy}>{busy ? (reg ? "Creating account…" : "Signing in…") : reg ? "Create account" : "Sign in"}</button>
         </form>
 
-        {!reg && <p className="auth-note">Forgot your password? Password reset by email is not set up yet. <Link href="/about">Contact the foundation</Link> and an administrator can help.</p>}
-        <p className="auth-switch">{reg ? "Already have an account?" : "New here?"} <Link href={other}>{reg ? "Sign in" : "Create an account"}</Link></p>
+                <p className="auth-switch">{reg ? "Already have an account?" : "New here?"} <Link href={other}>{reg ? "Sign in" : "Create an account"}</Link></p>
         {reg && <p className="auth-fine">By creating an account you can read everything, suggest corrections and register for events. Contributing stories and archive items needs an invitation from the editors.</p>}
       </div>
     </div>

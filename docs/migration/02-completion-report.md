@@ -2,7 +2,7 @@
 
 Status date: 21 Nov 2026. Source: prototype v51 (`prototype/ssrf-portal-source`). **This is a working production codebase, not a finished product: the open items at the bottom matter, above all that live data has not been migrated yet.**
 
-Test status key: **API-T** = automated xUnit integration test (12 tests, all passing). **Run** = exercised by hand against the running stack. **Build** = compiles and renders (route returns 200, lint clean) but its interactive behaviour was not exercised. **Not done** = not implemented.
+Test status key: **API-T** = automated xUnit integration test (21 tests, all passing). **Run** = exercised by hand against the running stack. **Build** = compiles and renders (route returns 200, lint clean) but its interactive behaviour was not exercised. **Not done** = not implemented.
 
 ## Views
 | Prototype view | New route | API | Entities | Status |
@@ -50,7 +50,7 @@ Test status key: **API-T** = automated xUnit integration test (12 tests, all pas
 | claude.use | Replacement | Status |
 |---|---|---|
 | db | PostgreSQL + EF Core, REST API | Done |
-| user | ASP.NET Identity, roles Admin/Editor/Contributor/Member | Done; email confirmation and password reset **Not done** (needs a mail provider) |
+| user | ASP.NET Identity, roles Admin/Editor/Contributor/Member | Done, including forgot/reset password by emailed one-time link (needs SMTP settings to deliver; tested against a local test mailbox); email confirmation at sign-up **Not done** |
 | assets | `IObjectStorage` (local disk implemented; S3-compatible provider **Not done**), metadata + SHA-256 | Done for local |
 | downloads | server-side backup endpoint, restore script | Partial |
 
@@ -73,5 +73,5 @@ Test status key: **API-T** = automated xUnit integration test (12 tests, all pas
 3. **Uploaded file bytes** need a loader that maps `LegacyAssetId` to the media backup.
 4. Campaign **SVG maps**, quiz **certificate**, revise-and-resubmit **UI**, editor **research mode**.
 5. Front-end automated tests (Playwright) and an accessibility audit.
-6. Production extras: S3 provider, email (confirmation, reset, notifications), TLS termination, monitoring.
+6. Production extras: S3 provider, email confirmation and notifications (password reset is built; it needs SMTP settings), TLS termination, monitoring.
 7. Historical content was not edited or extended. Anything marked "Not yet researched" in the seed stays that way until the historians write it.
