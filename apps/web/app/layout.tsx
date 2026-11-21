@@ -65,7 +65,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <nav className="ft-col" aria-label="Foundation"><h2>Foundation</h2><ul><li><Link href="/about">About</Link></li><li><Link href="/about/standards">Research standards</Link></li><li><Link href="/about/governance">Governance</Link></li></ul></nav>
               <nav className="ft-col" aria-label="Connect"><h2>Connect</h2><ul><li>{contact?.email ? <a href={`mailto:${contact.email}`}>Contact</a> : <Link href="/about">Contact</Link>}</li><li><Link href="/about/corrections">Corrections and data requests</Link></li></ul></nav>
             </div>
-            <div className="ft-base"><p>A historical research and preservation initiative.</p><p>© {new Date().getFullYear()} Sagat Singh Research Foundation. India boundary: DataMeet (CC BY 4.0). Country outlines and rivers: Natural Earth (public domain).</p></div>
+            <div className="ft-base"><p>A historical research and preservation initiative.</p><p>© {new Date().getFullYear()} Sagat Singh Research Foundation</p></div>
           </div>
         </footer>
         <Toast />
