@@ -6,7 +6,7 @@ import { get, me, canContribute, isEditor, type Book, type Campaign } from "@/li
 import { HistoryPanel, Unavailable } from "@/components/ui";
 import AutoForm from "@/components/AutoForm";
 import ContributeForm from "@/components/ContributeForm";
-import { usefulNote } from "@/lib/text";
+import { usefulNote, englishTitle } from "@/lib/text";
 import CorrectionBox from "@/components/CorrectionBox";
 import { StatusForm, DeleteButton } from "@/components/Interact";
 
@@ -18,6 +18,7 @@ const LGROUPS: [string, string, string[]][] = [["books", "Books and biographies"
 const lgroup = (k?: string) => (LGROUPS.find((g) => g[2].includes(k ?? "")) ?? LGROUPS[4])[0];
 const LTYPE: Record<string, string> = { Biography: "Biography", Book: "Book", Memoir: "Memoir", Article: "Article", Newspaper: "News report", "Official record": "Official record", Thesis: "Thesis", Other: "Film", "Lecture or talk": "Talk" };
 const CLOTH = ["#5b1d1a", "#2f3b2a", "#22324a", "#4a3524", "#3b2a3e"];
+const T = (b: Book) => englishTitle(b.title, `Hindi-language ${lgroup(b.kind) === "articles" ? "article" : "item"}${(b.data as { publisher?: string }).publisher ? " from " + (b.data as { publisher?: string }).publisher : ""}`);
 const hsh = (s: string) => { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h); };
 const shortTitle = (t: string) => String(t || "").split(/:\s/)[0];
 const lLinkLabel = (b: Book) => { const own = (b.data as D).linkLabel; if (own) return own; const l = (b.data as { link?: string }).link ?? ""; const g = lgroup(b.kind); return /wikipedia\.org/.test(l) && g === "books" ? "More about the book" : ({ articles: "Read the article", records: "Open the record", films: "More about the film", theses: "Read the thesis" } as Record<string, string>)[g] ?? "View at the publisher"; };
@@ -32,13 +33,13 @@ function Cover({ b, big, inner }: { b: Book; big?: boolean; inner?: boolean }) {
   if (asset && !inner) return (
     <div className={`lcov real${sz}`}><Cover b={b} big={big} inner />
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="lcov-img" src={`/library/covers/${asset}.jpg`} alt={`Cover of ${b.title}`} loading="lazy" />
+      <img className="lcov-img" src={`/library/covers/${asset}.jpg`} alt={`Cover of ${T(b)}`} loading="lazy" />
       {v && <span className="lseal" title="Verified by SSRF">✓</span>}</div>);
   const seal = v && !inner ? <span className="lseal" title="Verified by SSRF">✓</span> : null;
-  if (g === "articles") return <div className={`lcov clip${sz}`}><span className="mast">{d.publisher || byline(d)}</span><span className="rule" /><span className="head">{shortTitle(b.title)}</span><span className="cols" />{seal}</div>;
-  if (g === "records") return <div className={`lcov folder${sz}`}><span className="tab">{LTYPE[b.kind ?? ""] || "Record"}</span><span className="org">{byline(d) || d.publisher || ""}</span><span className="head">{shortTitle(b.title)}</span><span className="stamp">{d.year || ""}</span>{seal}</div>;
-  if (g === "films") return <div className={`lcov reel${sz}`}><span className="mast">{d.publisher || "Film"}</span><span className="head">{shortTitle(b.title)}</span><span className="by">{d.year || ""}</span>{seal}</div>;
-  return <div className={`lcov cloth${g === "theses" ? " thesis" : ""}${sz}${inner ? " under" : ""}`} style={{ ["--cl" as string]: CLOTH[hsh(b.title) % CLOTH.length] }}><span className="spine" /><span className="frame"><span className="head">{shortTitle(b.title)}</span><span className="orn">✦</span><span className="by">{String(byline(d)).replace(/\s*\(Retd\)/, "")}</span></span>{seal}</div>;
+  if (g === "articles") return <div className={`lcov clip${sz}`}><span className="mast">{d.publisher || byline(d)}</span><span className="rule" /><span className="head">{shortTitle(T(b))}</span><span className="cols" />{seal}</div>;
+  if (g === "records") return <div className={`lcov folder${sz}`}><span className="tab">{LTYPE[b.kind ?? ""] || "Record"}</span><span className="org">{byline(d) || d.publisher || ""}</span><span className="head">{shortTitle(T(b))}</span><span className="stamp">{d.year || ""}</span>{seal}</div>;
+  if (g === "films") return <div className={`lcov reel${sz}`}><span className="mast">{d.publisher || "Film"}</span><span className="head">{shortTitle(T(b))}</span><span className="by">{d.year || ""}</span>{seal}</div>;
+  return <div className={`lcov cloth${g === "theses" ? " thesis" : ""}${sz}${inner ? " under" : ""}`} style={{ ["--cl" as string]: CLOTH[hsh(b.title) % CLOTH.length] }}><span className="spine" /><span className="frame"><span className="head">{shortTitle(T(b))}</span><span className="orn">✦</span><span className="by">{String(byline(d)).replace(/\s*\(Retd\)/, "")}</span></span>{seal}</div>;
 }
 
 function Meta({ b }: { b: Book }) {
@@ -51,14 +52,14 @@ function Card({ b, ed, signedIn }: { b: Book; ed: boolean; signedIn: boolean }) 
   const d = b.data as D, v = b.status === "verified";
   return (
     <article className={`lcard${v ? " verified" : ""}`} id={b.id}>
-      {d.link ? <a href={d.link} target="_blank" rel="noopener noreferrer" className="lcov-link" aria-label={`${lLinkLabel(b)}: ${b.title}`}><Cover b={b} /></a> : <Cover b={b} />}
+      {d.link ? <a href={d.link} target="_blank" rel="noopener noreferrer" className="lcov-link" aria-label={`${lLinkLabel(b)}: ${T(b)}`}><Cover b={b} /></a> : <Cover b={b} />}
       <div className="lbody">
         <div className="lstat">{v ? <span className="lver">✓ Verified</span> : <span className="lchk">Being checked</span>}{(b.camps ?? []).map((c) => <span key={c} className="lcamp">{VCAMP[c] ?? c}</span>)}</div>
-        <h3>{b.title}</h3>
+        <h3>{T(b)}</h3>
         <Meta b={b} />
         {b.description && <p className="ldesc">{b.description}</p>}
         {usefulNote(b.verNote) && <p className="meta">{usefulNote(b.verNote)}</p>}
-        <div className="lacts">{d.link && <a className="btn small" href={d.link} target="_blank" rel="noopener noreferrer">{lLinkLabel(b)} ↗</a>}{signedIn && <CorrectionBox target={`books/${b.id}`} title={b.title} />}</div>
+        <div className="lacts">{d.link && <a className="btn small" href={d.link} target="_blank" rel="noopener noreferrer">{lLinkLabel(b)} ↗</a>}{signedIn && <CorrectionBox target={`books/${b.id}`} title={T(b)} />}</div>
         <HistoryPanel target={`books/${b.id}`} />
         {ed && <div className="actions"><StatusForm col="books" id={b.id} status={b.status} note={b.verNote} /><DeleteButton col="books" id={b.id} label="Delete" confirmText="Delete this entry? It can be restored only from a backup." /></div>}
       </div>
@@ -88,7 +89,7 @@ export default async function Library({ searchParams }: SP) {
     <>
       <JsonLd data={{ "@context": "https://schema.org", "@type": "ItemList", name: "Library: books and articles about Lt Gen Sagat Singh", numberOfItems: all.length,
         itemListElement: all.map((b, i) => { const d = b.data as D;
-          return { "@type": "ListItem", position: i + 1, item: { "@type": b.kind === "Biography" || b.kind === "Book" ? "Book" : b.kind === "Article" || b.kind === "Newspaper" ? "Article" : "CreativeWork", name: b.title,
+          return { "@type": "ListItem", position: i + 1, item: { "@type": b.kind === "Biography" || b.kind === "Book" ? "Book" : b.kind === "Article" || b.kind === "Newspaper" ? "Article" : "CreativeWork", name: T(b),
             ...(byline(d) ? { author: { "@type": "Person", name: byline(d) } } : {}), ...(d.year ? { datePublished: d.year } : {}), ...(d.link ? { url: d.link } : {}), about: { "@id": `${SITE}/#subject` } } }; }) }} />
       <section className="llanding"><div className="llanding-inner">
         <p className="eyebrow">SSRF Research library</p>
@@ -128,10 +129,10 @@ export default async function Library({ searchParams }: SP) {
             {d.link ? <a href={d.link} target="_blank" rel="noopener noreferrer" className="lcov-link"><Cover b={b} big /></a> : <Cover b={b} big />}
             <div className="lbody">
               <div className="lstat">{b.status === "verified" ? <span className="lver">✓ Verified</span> : <span className="lchk">Being checked</span>}<span className="lcamp">The standard biography</span></div>
-              <h3>{b.title}</h3><Meta b={b} />
+              <h3>{T(b)}</h3><Meta b={b} />
               {b.description && <p className="ldesc">{b.description}</p>}
               {usefulNote(b.verNote) && <p className="meta">{usefulNote(b.verNote)}</p>}
-              <div className="lacts">{d.link && <a className="btn" href={d.link} target="_blank" rel="noopener noreferrer">{lLinkLabel(b)} ↗</a>}{signedIn && <CorrectionBox target={`books/${b.id}`} title={b.title} />}</div>
+              <div className="lacts">{d.link && <a className="btn" href={d.link} target="_blank" rel="noopener noreferrer">{lLinkLabel(b)} ↗</a>}{signedIn && <CorrectionBox target={`books/${b.id}`} title={T(b)} />}</div>
               <HistoryPanel target={`books/${b.id}`} />
             </div>
           </section>); })}</>}
