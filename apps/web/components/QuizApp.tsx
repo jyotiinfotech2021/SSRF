@@ -6,8 +6,8 @@ import { QTOPICS, QLEVELS } from "@/lib/ref";
 
 type Q = { id: string; n: number; q: string; options: string[]; answer: number; explain?: string; hint?: string; source?: string; topic?: string; level?: string };
 
-export default function QuizApp({ all, editor }: { all: Q[]; editor: boolean }) {
-  const [topic, setTopic] = useState(""); const [level, setLevel] = useState("");
+export default function QuizApp({ all, editor, initialTopic }: { all: Q[]; editor: boolean; initialTopic?: string }) {
+  const [topic, setTopic] = useState(initialTopic && all.some((q) => q.topic === initialTopic) ? initialTopic : ""); const [level, setLevel] = useState("");
   const [qs, setQs] = useState<Q[] | null>(null);
   const [i, setI] = useState(0); const [picks, setPicks] = useState<number[]>([]); const [hint, setHint] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
