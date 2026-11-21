@@ -46,8 +46,8 @@ html {
   overflow-x: clip;
 }
 :root {
-  --stencil: "Big Shoulders Stencil Display", Impact, "Arial Narrow", sans-serif;
-  --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --stencil: var(--f-stencil), "Big Shoulders Stencil Display", Impact, "Arial Narrow", sans-serif;
+  --serif: var(--f-serif), "Source Serif 4", Georgia, "Times New Roman", serif;
   color-scheme: light;
   box-sizing: border-box;
   padding-top: env(safe-area-inset-top,0px);
@@ -2599,7 +2599,7 @@ figure.cmap .cmap-scroll>svg {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--cc);
+  background: linear-gradient(rgba(0,0,0,.36), rgba(0,0,0,.36)), var(--cc);
   color: #fff;
   font-style: normal;
   font-weight: 700;
@@ -2615,8 +2615,10 @@ figure.cmap .cmap-scroll>svg {
   color: var(--muted);
 }
 .acoll.empty {
-  opacity: .62;
+  opacity: 1;
 }
+.acoll.empty b { font-weight: 600; }
+.acoll.empty > span { color: #5b5d4c; font-style: italic; }
 .acoll.on {
   box-shadow: 0 0 0 2px var(--cc);
   opacity: 1;
@@ -2654,6 +2656,7 @@ figure.cmap .cmap-scroll>svg {
   font-size: var(--fs-xs);
   letter-spacing: .08em;
   text-transform: uppercase;
+  color: #5b5d4c;
 }
 .acard-id {
   position: absolute;

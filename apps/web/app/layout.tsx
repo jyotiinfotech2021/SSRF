@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Big_Shoulders_Stencil, Source_Serif_4 } from "next/font/google";
 import "./ssrf.css";
 import "./extra.css";
 import Link from "next/link";
@@ -10,6 +11,10 @@ import { Mark } from "@/components/Mark";
 import JsonLd from "@/components/JsonLd";
 import BreadcrumbLd from "@/components/BreadcrumbLd";
 import { SITE, SITE_NAME, OG_DEFAULT } from "@/lib/seo";
+
+// Self-hosted at build time: no render-blocking request to Google Fonts, so the first paint is not held up.
+const stencil = Big_Shoulders_Stencil({ subsets: ["latin"], display: "swap", variable: "--f-stencil" });
+const serif = Source_Serif_4({ subsets: ["latin"], style: ["normal", "italic"], weight: ["400", "600"], display: "swap", variable: "--f-serif" });
 
 const DESC = "A documented, source-referenced record of the life and campaigns of Lt Gen Sagat Singh, with evidence classifications, an archive and a learning centre.";
 export const metadata: Metadata = {
@@ -34,13 +39,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // Only real, published links go into structured data: social profiles come from the foundation's own settings.
   const sameAs = (contact?.social ?? "").split("\n").map((l) => l.split("|")[1]?.trim()).filter((u): u is string => !!u && /^https:\/\//.test(u));
   return (
-    <html lang="en-IN">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil+Display:wght@600;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet" />
-      </head>
+    <html lang="en-IN" className={`${stencil.variable} ${serif.variable}`}>
       <body>
         <JsonLd data={[
           { "@context": "https://schema.org", "@type": "Organization", "@id": `${SITE}/#organization`, name: SITE_NAME, alternateName: "SSRF", url: SITE, logo: `${SITE}/apple-icon.png`,

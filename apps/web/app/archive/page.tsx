@@ -54,7 +54,7 @@ export default async function Archive({ searchParams }: SP) {
         {ATYPES.map(([k, l]) => <Link key={k} className={`atype${sp.atype === k ? " on" : ""}`} href={q({ atype: k, page: undefined })}><AIcon t={k} />{l} <i>{cnt("category", k)}</i></Link>)}
       </div>
 
-      <h3 className="asect">Collections</h3>
+      <h2 className="asect">Collections</h2>
       <div className="acolls">
         {Object.keys(ACOLLMETA).map((c) => {
           const [code, col] = collMeta(c), n = cnt("collection", c);
@@ -65,7 +65,7 @@ export default async function Archive({ searchParams }: SP) {
         })}
       </div>
 
-      <h3 className="asect">{sp.acoll || sp.atype ? <>{typeLabel ?? "Items"}{sp.acoll ? ` in ${sp.acoll}` : ""} <Link className="link" href="/archive">Clear filters</Link></> : "All items"}</h3>
+      <h2 className="asect">{sp.acoll || sp.atype ? <>{typeLabel ?? "Items"}{sp.acoll ? ` in ${sp.acoll}` : ""} <Link className="link" href="/archive">Clear filters</Link></> : "All items"}</h2>
       {list.length ? (
         <>
           <div className="agrid">

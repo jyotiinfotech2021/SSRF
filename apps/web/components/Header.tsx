@@ -27,7 +27,7 @@ export default function Header({ signedIn, editor }: { signedIn: boolean; editor
   return (
     <header className="site-header">
       <div className="hdr-row">
-        <Link href="/" className="hdr-brand" aria-label="Sagat Singh Research Foundation, home">
+        <Link href="/" className="hdr-brand" title="Sagat Singh Research Foundation, home">
           <Mark />
           <span><b>SSRF</b><small>Sagat Singh Research Foundation</small></span>
         </Link>
