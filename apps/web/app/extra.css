@@ -332,3 +332,10 @@ a.acoll b, a.acoll span, a.atype { text-decoration: none; }
 /* SEO: the Archive and Learning heroes are the page's single H1; same look as the prototype's hero H2 */
 .alanding h1 { font-family: var(--stencil); font-size: var(--fs-landing); line-height: 1; margin: 0 0 var(--sp-3); color: var(--brass-light); font-weight: 600; }
 .lclanding h1 { font-family: var(--stencil); font-size: var(--fs-landing); line-height: 1.02; margin: 0 0 var(--sp-3); color: var(--brass-light); font-weight: 600; }
+
+/* Life-at-a-glance strip: equal columns so years and captions line up row to row (5 across = two even rows of ten) */
+.ops { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--sp-5) var(--sp-5); align-items: start; }
+.ops a { min-width: 0; }
+.ops a b, .ops a span { overflow-wrap: anywhere; }
+@media (max-width: 900px) { .ops { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .ops { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
