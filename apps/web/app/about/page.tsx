@@ -66,9 +66,6 @@ export default async function About() {
 
       <h3 className="sect">Map credits</h3>
       <p className="prose">India boundary: DataMeet (CC BY 4.0). Country outlines and rivers: Natural Earth (public domain). Campaign maps are explanatory sketches by the foundation, not historical maps.</p>
-
-      <h3 className="sect">The platform</h3>
-      <p className="prose">This site is the foundation&apos;s own platform, with its own database, archive storage and backups. It replaces the earlier working prototype that was hosted on claude.ai; records from the prototype are being moved across, and nothing is discarded in the move.</p>
     </>
   );
 }
