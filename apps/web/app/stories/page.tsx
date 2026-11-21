@@ -3,7 +3,8 @@ import { pageMeta } from "@/lib/seo";
 import Link from "next/link";
 import { Suspense } from "react";
 import { get, me, canContribute, isEditor, type Story, type Campaign } from "@/lib/api";
-import { PageHead, AssessTag, NatureTag, MemberTag, fmtDate, Unavailable, Empty } from "@/components/ui";
+import { PageHead, AssessTag, NatureTag, MemberTag, HistoryPanel, fmtDate, Unavailable, Empty } from "@/components/ui";
+import StoryBody from "@/components/StoryBody";
 import ContributeForm from "@/components/ContributeForm";
 import { SaluteButton, DeleteButton } from "@/components/Interact";
 import CorrectionBox from "@/components/CorrectionBox";
@@ -12,7 +13,6 @@ import { ERAS, KINDS, NATURE } from "@/lib/ref";
 
 export const metadata: Metadata = pageMeta("Stories and memoirs about Lt Gen Sagat Singh", "Articles, memoirs, anecdotes and videos from members, each labelled by the nature of the material and by how well its claims are supported.", "/stories");
 type SP = { searchParams: Promise<{ kind?: string; era?: string; material?: string; assess?: string }> };
-const WEAK = new Set(["attributed", "unverified", "disputed"]);
 
 export default async function Stories({ searchParams }: SP) {
   const sp = await searchParams;
@@ -31,27 +31,23 @@ export default async function Stories({ searchParams }: SP) {
       {filtered && <p className="meta">{rows.length} of {stories?.length ?? 0} stories. <Link className="link" href="/stories">Clear filters</Link></p>}
 
       {rows.length ? rows.map((s) => {
-        const video = (s.data as { video?: string }).video;
+        const d = s.data as { video?: string; sources?: string; narrator?: string; narratorBg?: string; when?: string; where?: string; unit?: string; attribution?: string };
+        const place = [d.when, d.where, d.unit].filter(Boolean).join(" · ");
         return (
-          <article key={s.id} className="scard story-item" id={s.id}>
-            <p className="tags"><MemberTag /> {s.kind && <span className="tag">{s.kind}</span>} {s.era && <span className="tag">{s.era}</span>} <NatureTag n={s.nature} /> <AssessTag k={s.assessment} /></p>
-            <h3><Link href={`/stories/${s.id}`}>{s.title}</Link></h3>
-            <p className="meta">{s.authorName}, {fmtDate(s.createdAt)}</p>
-            <p>{(s.body ?? "").slice(0, 320)}{(s.body ?? "").length > 320 ? "…" : ""}</p>
-            <div className="story-actions">
-              {video && <a className="link" href={video} target="_blank" rel="noopener noreferrer">Watch the video</a>}
+          <article key={s.id} className="story" id={`story-${s.id}`}>
+            <div><MemberTag /><span className="tag">{s.kind}</span><span className="tag">{s.era}</span><NatureTag n={s.nature} /><AssessTag k={s.assessment} /></div>
+            <h3>{s.title}</h3>
+            <div className="meta">{s.authorName || "A member"}. {fmtDate(s.createdAt)}{s.reviewedAt ? `. Reviewed ${fmtDate(s.reviewedAt)}` : ""}</div>
+            {d.narrator && <div className="meta">Account of {d.narrator}{d.narratorBg ? `, ${d.narratorBg}` : ""}</div>}
+            {place && <div className="meta">{place}</div>}
+            <StoryBody body={s.body ?? ""} sources={d.sources} history={<HistoryPanel target={`stories/${s.id}`} />}>
+              {d.video && <a href={d.video} target="_blank" rel="noopener noreferrer">Watch the video</a>}
               <SaluteButton id={s.id} initial={!!mine?.includes(s.id)} count={counts?.[s.id] ?? 0} signedIn={!!who.id} />
-              {who.id ? <CorrectionBox target={`stories/${s.id}`} title={s.title} /> : <Link className="link quiet" href={`/login?next=/stories`}>Suggest a correction</Link>}
-            </div>
-            {WEAK.has(s.assessment ?? "") && !editor && <p className="meta">This account has not been independently confirmed.</p>}
-            {editor && (
-              <div className="story-editor">
-                <AssessSelect id={s.id} value={s.assessment ?? "unverified"} own={s.authorId === who.id} />
-                <DeleteButton col="stories" id={s.id} label="Unpublish" confirmText="Unpublish this story? The contributor's submission and its history remain." />
-              </div>
-            )}
+              {who.id ? <CorrectionBox target={`stories/${s.id}`} title={s.title} /> : <Link className="link quiet" href="/login?next=/stories">Suggest a correction</Link>}
+              {editor && <><AssessSelect id={s.id} value={s.assessment ?? "unverified"} own={s.authorId === who.id} /><DeleteButton col="stories" id={s.id} label="Unpublish" confirmText="Unpublish this story? The contributor's submission and its history remain." /></>}
+            </StoryBody>
           </article>);
-      }) : <Empty>{filtered ? "No stories match these filters." : "No stories have been published yet."}</Empty>}
+      }) : <Empty>{filtered ? "No stories match these filters." : "No published stories yet. If you served with him, knew him, or have researched his campaigns, contribute yours."}</Empty>}
 
       <div id="contribute-story">
         {canContribute(who) && <ContributeForm kind="story" camps={(camps ?? []).map((c) => ({ id: c.id, name: c.name }))} openOnHash="#contribute-story" />}
