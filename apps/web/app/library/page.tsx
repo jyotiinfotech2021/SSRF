@@ -18,22 +18,23 @@ const LTYPE: Record<string, string> = { Biography: "Biography", Book: "Book", Me
 const CLOTH = ["#5b1d1a", "#2f3b2a", "#22324a", "#4a3524", "#3b2a3e"];
 const hsh = (s: string) => { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h); };
 const shortTitle = (t: string) => String(t || "").split(/:\s/)[0];
-const lLinkLabel = (b: Book) => { const l = (b.data as { link?: string }).link ?? ""; const g = lgroup(b.kind); return /wikipedia\.org/.test(l) && g === "books" ? "More about the book" : ({ articles: "Read the article", records: "Open the record", films: "More about the film", theses: "Read the thesis" } as Record<string, string>)[g] ?? "View at the publisher"; };
+const lLinkLabel = (b: Book) => { const own = (b.data as D).linkLabel; if (own) return own; const l = (b.data as { link?: string }).link ?? ""; const g = lgroup(b.kind); return /wikipedia\.org/.test(l) && g === "books" ? "More about the book" : ({ articles: "Read the article", records: "Open the record", films: "More about the film", theses: "Read the thesis" } as Record<string, string>)[g] ?? "View at the publisher"; };
 const VCAMP: Record<string, string> = { goa: "Goa 1961", nathula: "Nathu La 1967", meghna: "1971 war" };
-type D = { author?: string; publisher?: string; year?: string; link?: string };
+type D = { author?: string; creator?: string; publisher?: string; year?: string; link?: string; linkLabel?: string; featured?: boolean; featureOrder?: number };
+const byline = (d: D) => d.creator || d.author || "";
 
 function Cover({ b, big }: { b: Book; big?: boolean }) {
   const d = b.data as D, g = lgroup(b.kind), v = b.status === "verified", sz = big ? " big" : "";
   const seal = v ? <span className="lseal" title="Verified by SSRF">✓</span> : null;
-  if (g === "articles") return <div className={`lcov clip${sz}`}><span className="mast">{d.publisher || d.author || ""}</span><span className="rule" /><span className="head">{shortTitle(b.title)}</span><span className="cols" />{seal}</div>;
-  if (g === "records") return <div className={`lcov folder${sz}`}><span className="tab">{LTYPE[b.kind ?? ""] || "Record"}</span><span className="org">{d.author || d.publisher || ""}</span><span className="head">{shortTitle(b.title)}</span><span className="stamp">{d.year || ""}</span>{seal}</div>;
+  if (g === "articles") return <div className={`lcov clip${sz}`}><span className="mast">{d.publisher || byline(d)}</span><span className="rule" /><span className="head">{shortTitle(b.title)}</span><span className="cols" />{seal}</div>;
+  if (g === "records") return <div className={`lcov folder${sz}`}><span className="tab">{LTYPE[b.kind ?? ""] || "Record"}</span><span className="org">{byline(d) || d.publisher || ""}</span><span className="head">{shortTitle(b.title)}</span><span className="stamp">{d.year || ""}</span>{seal}</div>;
   if (g === "films") return <div className={`lcov reel${sz}`}><span className="mast">{d.publisher || "Film"}</span><span className="head">{shortTitle(b.title)}</span><span className="by">{d.year || ""}</span>{seal}</div>;
-  return <div className={`lcov cloth${g === "theses" ? " thesis" : ""}${sz}`} style={{ ["--cl" as string]: CLOTH[hsh(b.title) % CLOTH.length] }}><span className="spine" /><span className="frame"><span className="head">{shortTitle(b.title)}</span><span className="orn">✦</span><span className="by">{String(d.author || "").replace(/\s*\(Retd\)/, "")}</span></span>{seal}</div>;
+  return <div className={`lcov cloth${g === "theses" ? " thesis" : ""}${sz}`} style={{ ["--cl" as string]: CLOTH[hsh(b.title) % CLOTH.length] }}><span className="spine" /><span className="frame"><span className="head">{shortTitle(b.title)}</span><span className="orn">✦</span><span className="by">{String(byline(d)).replace(/\s*\(Retd\)/, "")}</span></span>{seal}</div>;
 }
 
 function Meta({ b }: { b: Book }) {
   const d = b.data as D;
-  const rows: [string, string | undefined][] = [["Author", d.author], ["Publisher", d.publisher !== d.author ? d.publisher : ""], ["Year", d.year], ["Type", LTYPE[b.kind ?? ""] || b.kind]];
+  const rows: [string, string | undefined][] = [["Author", byline(d)], ["Publisher", d.publisher !== byline(d) ? d.publisher : ""], ["Year", d.year], ["Type", LTYPE[b.kind ?? ""] || b.kind]];
   return <dl className="lmeta">{rows.filter((r) => r[1]).map(([k, x]) => <span key={k} style={{ display: "contents" }}><dt>{k}</dt><dd>{x}</dd></span>)}</dl>;
 }
 
@@ -68,9 +69,10 @@ export default async function Library({ searchParams }: SP) {
     title: (a, b) => a.title.localeCompare(b.title),
   };
   const list = all.filter((b) => { const d = b.data as D;
-    return (!q || [b.title, d.author, d.publisher, b.description, d.year].join(" ").toLowerCase().includes(q)) && (!sp.grp || lgroup(b.kind) === sp.grp) && (!sp.camp || (b.camps ?? []).includes(sp.camp)) && (!sp.ver || b.status === "verified"); })
+    return (!q || [b.title, byline(d), d.publisher, b.description, d.year].join(" ").toLowerCase().includes(q)) && (!sp.grp || lgroup(b.kind) === sp.grp) && (!sp.camp || (b.camps ?? []).includes(sp.camp)) && (!sp.ver || b.status === "verified"); })
     .sort((a, b) => Number(b.status === "verified") - Number(a.status === "verified") || (sorters[sp.sort ?? "new"] ?? sorters.new)(a, b));
   const filtered = !!(q || sp.grp || sp.camp || sp.ver);
+  const feat = list.filter((b) => (b.data as D).featured).sort((a, b) => ((a.data as D).featureOrder ?? 9) - ((b.data as D).featureOrder ?? 9));
   const gcount = (k: string) => all.filter((b) => lgroup(b.kind) === k).length;
   const href = (grp?: string) => { const u = new URLSearchParams(); if (sp.q) u.set("q", sp.q); if (grp) u.set("grp", grp); if (sp.camp) u.set("camp", sp.camp); if (sp.sort) u.set("sort", sp.sort); if (sp.ver) u.set("ver", sp.ver); const s = u.toString(); return "/library" + (s ? "?" + s : ""); };
   return (
@@ -78,7 +80,7 @@ export default async function Library({ searchParams }: SP) {
       <JsonLd data={{ "@context": "https://schema.org", "@type": "ItemList", name: "Library: books and articles about Lt Gen Sagat Singh", numberOfItems: all.length,
         itemListElement: all.map((b, i) => { const d = b.data as D;
           return { "@type": "ListItem", position: i + 1, item: { "@type": b.kind === "Biography" || b.kind === "Book" ? "Book" : b.kind === "Article" || b.kind === "Newspaper" ? "Article" : "CreativeWork", name: b.title,
-            ...(d.author ? { author: { "@type": "Person", name: d.author } } : {}), ...(d.year ? { datePublished: d.year } : {}), ...(d.link ? { url: d.link } : {}), about: { "@id": `${SITE}/#subject` } } }; }) }} />
+            ...(byline(d) ? { author: { "@type": "Person", name: byline(d) } } : {}), ...(d.year ? { datePublished: d.year } : {}), ...(d.link ? { url: d.link } : {}), about: { "@id": `${SITE}/#subject` } } }; }) }} />
       <section className="llanding"><div className="llanding-inner">
         <p className="eyebrow">SSRF Research library</p>
         <h1>Books, articles and records on his campaigns</h1>
@@ -111,8 +113,22 @@ export default async function Library({ searchParams }: SP) {
           <h2 className="asect">{list.length} {list.length === 1 ? "result" : "results"} <Link className="link" href="/library">Clear search and filters</Link></h2>
           {list.length ? <div className="lgrid">{list.map((b) => <Card key={b.id} b={b} ed={ed} signedIn={signedIn} />)}</div> : <p className="empty">Nothing matches. Try another word or clear the filters.</p>}
         </>
-      ) : LGROUPS.map(([k, l]) => { const g = list.filter((b) => lgroup(b.kind) === k);
-        return g.length ? <section key={k}><h2 className="sect">{l}</h2><div className="lgrid">{g.map((b) => <Card key={b.id} b={b} ed={ed} signedIn={signedIn} />)}</div></section> : null; }))}
+      ) : <>
+        {feat.length > 0 && <><h2 className="sect">Featured publication</h2>{feat.map((b) => { const d = b.data as D; return (
+          <section className="lfeat" key={b.id}>
+            {d.link ? <a href={d.link} target="_blank" rel="noopener noreferrer" className="lcov-link"><Cover b={b} big /></a> : <Cover b={b} big />}
+            <div className="lbody">
+              <div className="lstat">{b.status === "verified" ? <span className="lver">✓ Verified</span> : <span className="lchk">Being checked</span>}<span className="lcamp">The standard biography</span></div>
+              <h3>{b.title}</h3><Meta b={b} />
+              {b.description && <p className="ldesc">{b.description}</p>}
+              {b.verNote && <p className="meta">{b.verNote}</p>}
+              <div className="lacts">{d.link && <a className="btn" href={d.link} target="_blank" rel="noopener noreferrer">{lLinkLabel(b)} ↗</a>}{signedIn && <CorrectionBox target={`books/${b.id}`} title={b.title} />}</div>
+              <HistoryPanel target={`books/${b.id}`} />
+            </div>
+          </section>); })}</>}
+        {LGROUPS.map(([k, l]) => { const g = list.filter((b) => lgroup(b.kind) === k && !(b.data as D).featured);
+        return g.length ? <section key={k}><h2 className="sect">{l}</h2><div className="lgrid">{g.map((b) => <Card key={b.id} b={b} ed={ed} signedIn={signedIn} />)}</div></section> : null; })}
+      </>)}
       <h2 className="sect" id="suggest">Suggest a publication</h2>
       {canContribute(who) ? <ContributeForm kind="book" camps={(camps ?? []).map((c) => ({ id: c.id, name: c.name }))} /> : <p className="notice">{who.id ? "To contribute, ask the foundation to invite you as a contributor." : <>Please <Link href="/login?next=/library">sign in</Link> to suggest a publication.</>}</p>}
     </>

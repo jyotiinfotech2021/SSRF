@@ -6,6 +6,7 @@ import { get, me, type Campaign, type Claim, type Entity, type Cite, type Story,
 import CampaignMap, { hasCampaignMap, campaignFocus, campaignFocusBox } from "@/components/CampaignMap";
 import { ClaimCard, Cites, ShortCite, sourceMap, HistoryPanel, CitePanel, NatureTag, AssessTag, StatusTag, fmtDay } from "@/components/ui";
 import CorrectionBox from "@/components/CorrectionBox";
+import { englishTitle } from "@/lib/text";
 
 type Params = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
@@ -145,7 +146,7 @@ export default async function CampaignPage({ params }: Params) {
         {(libs.length > 0 || recs.length > 0 || evs.length > 0) && (
           <section className="dos"><h4>Related in the library, register and events</h4>
             <div className="grid-rel">
-              {libs.length > 0 && <div><b>Library and videos</b><ul className="rel">{libs.map((x) => { const dd = x.data as { link?: string; author?: string }; return <li key={x.id}>{dd.link ? <a href={dd.link} target="_blank" rel="noopener noreferrer">{x.title}</a> : x.title} <span className="meta">{dd.author ?? ""}</span></li>; })}</ul></div>}
+              {libs.length > 0 && <div><b>Library and videos</b><ul className="rel">{libs.map((x) => { const dd = x.data as { link?: string; author?: string; creator?: string }; return <li key={x.id}>{dd.link ? <a href={dd.link} target="_blank" rel="noopener noreferrer">{englishTitle(x.title)}</a> : englishTitle(x.title)} <span className="meta">{dd.creator ?? dd.author ?? ""}</span></li>; })}</ul></div>}
               {recs.length > 0 && <div><b>Recognition</b><ul className="rel">{recs.map((x) => <li key={x.id}>{x.title} <StatusTag s={x.status} /></li>)}</ul></div>}
               {evs.length > 0 && <div><b>Events</b><ul className="rel">{evs.map((x) => <li key={x.id}>{x.title} <span className="meta">{fmtDay(x.date)}</span></li>)}</ul></div>}
             </div></section>)}

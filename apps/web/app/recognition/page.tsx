@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { pageMeta } from "@/lib/seo";
 import { get, me, canContribute, isEditor, type Place, type Campaign } from "@/lib/api";
-import { HistoryPanel, Unavailable } from "@/components/ui";
+import { HistoryPanel, Unavailable, Cites, sourceMap } from "@/components/ui";
 import ContributeForm from "@/components/ContributeForm";
 import CorrectionBox from "@/components/CorrectionBox";
 import { StatusForm, DeleteButton } from "@/components/Interact";
@@ -11,20 +11,21 @@ import { INDIA, inP } from "@/lib/indiaMap";
 
 export const metadata: Metadata = pageMeta("Recognition register: statues, memorials and honours", "Statues, busts, memorials, honours and observances recognising Lt Gen Sagat Singh, each with its source and a verification status.", "/recognition");
 type SP = { searchParams: Promise<{ state?: string; kind?: string; st?: string }> };
-type PD = { source?: string; location?: string; images?: { url: string; caption?: string; wide?: boolean }[]; imagesNote?: string; homeBlurb?: string; featured?: boolean };
+type PD = { source?: string; location?: string; city?: string; state?: string; district?: string; date?: string; inauguratedBy?: string; accessibility?: string; details?: string[]; cites?: { s: string; loc?: string }[]; images?: { url: string; caption?: string; wide?: boolean }[]; imagesNote?: string; homeBlurb?: string; featured?: boolean };
 
 const PICON: Record<string, string> = { Statue: "M12 3a2.2 2.2 0 1 1 0 4.4A2.2 2.2 0 0 1 12 3zM9 9h6l1 6h-2l-.5 4h-3L10 15H8z M6 21h12", Bust: "M9 7.5a3 3 0 1 0 6 0a3 3 0 1 0-6 0M6 17c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5M7 17h10v4H7z", "Named after him": "M12 3v18M6 6h11l2 2.5L17 11H6zM18 13H7l-2 2.5L7 18h11z", Memorial: "M9 21V7l3-4 3 4v14M6 21h12M10.5 11h3", Observance: "M4 5h16v15H4zM4 9.5h16M8.5 3v4M15.5 3v4M9 14l2 2 4-4", Honour: "M7 15a5 5 0 1 0 10 0a5 5 0 1 0-10 0M9 3l3 6 3-6", "Museum or display": "M3 9l9-5 9 5M5 9v9M9.5 9v9M14.5 9v9M19 9v9M3 20h18", Proposal: "M4 20h16M6 20V9l6-5 6 5v11M10 20v-6h4v6", Other: "M12 3l2.6 5.4 5.9.9-4.3 4.1 1 5.9L12 16.5 6.8 19.3l1-5.9L3.5 9.3l5.9-.9z" };
 const Icon = ({ k, cls }: { k?: string; cls?: string }) => <svg className={cls || "aicon"} viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"><path d={PICON[k ?? ""] ?? PICON.Other} /></svg>;
 const pStat = (p: Place) => (p.kind === "Proposal" ? "proposed" : p.status === "verified" ? "verified" : "checking");
 const PSTAT: Record<string, [string, string]> = { verified: ["Verified", "#303B30"], checking: ["Under verification", "#B09555"], proposed: ["Proposed", "#762633"] };
-// Approximate town positions, used only to place pins on the overview map.
-const COORD: Record<string, [number, number]> = { Churu: [28.3, 74.97], Sherathang: [27.37, 88.83], Jaipur: [26.91, 75.79], Bikaner: [28.02, 73.31], Goa: [15.5, 73.83], Delhi: [28.61, 77.21] };
-const CITY_STATE: Record<string, string> = { Bikaner: "Rajasthan", Churu: "Rajasthan", Jaipur: "Rajasthan" };
-const place = (p: Place) => { const l = (p.data as PD).location ?? ""; const parts = l.split(",").map((x) => x.trim()); const city = parts[0] || ""; return { city, state: parts[1] || CITY_STATE[city] || city || "Other" }; };
-const pos = (p: Place): [number, number] | null => { const c = place(p).city; const k = Object.keys(COORD).find((n) => c.includes(n)); return p.lat != null && p.lng != null ? [p.lat, p.lng] : k ? COORD[k] : null; };
+const place = (p: Place) => { const d = p.data as PD; const city = d.city || (d.location ?? "").split(",")[0].trim(); return { city, state: d.state || "Other" }; };
+const pos = (p: Place): [number, number] | null => (p.lat != null && p.lng != null ? [p.lat, p.lng] : null);
 
-function Card({ p, ed, signedIn }: { p: Place; ed: boolean; signedIn: boolean }) {
+function Card({ p, ed, signedIn, sources }: { p: Place; ed: boolean; signedIn: boolean; sources: Map<string, import("@/lib/api").Source> }) {
   const d = p.data as PD, st = pStat(p), [sl, sc] = PSTAT[st], img = d.images?.[0], loc = place(p);
+  const facts: [string, string | undefined][] = [[p.kind === "Honour" ? "Conferred by" : "Inaugurated by", d.inauguratedBy], ["Date", d.date], ["Public access", d.accessibility]];
+  const shownFacts = facts.filter((r) => r[1] && !/^(Unknown|Not applicable until built|Not built. Proposal stage.|Plan received)/.test(r[1]!) && !/to be confirmed/i.test(r[1]!));
+  const cites = (d.cites ?? []).map((c, i) => ({ id: i, sourceId: c.s, loc: c.loc ?? null, position: i }));
+  const mapUrl = p.lat != null && p.lng != null && !["Observance", "Honour", "Proposal"].includes(p.kind ?? "") ? `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}` : "";
   return (
     <article className={`rcard ${st}`} id={p.id} style={{ ["--sc" as string]: sc }}>
       <div className="rcard-body">
@@ -33,19 +34,21 @@ function Card({ p, ed, signedIn }: { p: Place; ed: boolean; signedIn: boolean })
           <div>
             <p className="rtype">{p.kind === "Proposal" ? "Proposed project" : p.kind} <span className="rstat">{st === "verified" ? "✓ " : ""}{sl}</span></p>
             <h3>{p.title.split(" / ")[0]}</h3>
-            {d.location && <p className="rloc"><svg className="aicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11z" /><circle cx="12" cy="10" r="2.2" /></svg>{loc.city}{loc.state !== loc.city ? `, ${loc.state}` : ""}</p>}
+            {(loc.city || d.location) && <p className="rloc"><svg className="aicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11z" /><circle cx="12" cy="10" r="2.2" /></svg>{[loc.city, loc.state !== "Other" ? loc.state : ""].filter(Boolean).join(", ")}</p>}
           </div>
         </div>
         {(p.description || d.homeBlurb) && <p className="rdesc">{p.description || d.homeBlurb}</p>}
+        {shownFacts.length > 0 && <dl className="rfacts">{shownFacts.map(([k, v]) => <span key={k} style={{ display: "contents" }}><dt>{k}</dt><dd>{v}</dd></span>)}</dl>}
         {p.verNote && <p className="meta">{p.verNote}</p>}
+        {(d.details?.length ?? 0) > 0 && <details className="evdet"><summary className="link evbtn">More details</summary><div className="evpanel">{d.details!.map((t, i) => <p key={i}>{t}</p>)}</div></details>}
         {(d.images?.length ?? 0) > 1 && (
           <details className="evdet"><summary className="link evbtn">All {d.images!.length} images</summary>
             <div className="concept"><p className="concept-note"><b>Artists&apos; renderings, not photographs.</b> {d.imagesNote}</p>
               <div className="concept-grid">{d.images!.map((i) => <figure key={i.url} className={i.wide ? "wide" : undefined}><a href={i.url} target="_blank" rel="noopener noreferrer">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={i.url} alt={`${i.caption ?? p.title} (artist's rendering)`} loading="lazy" /></a><figcaption>{i.caption}</figcaption></figure>)}</div></div>
           </details>)}
-        {d.source && <details className="evdet"><summary className="link evbtn">Sources</summary><div className="evpanel"><p><a href={d.source} target="_blank" rel="noopener noreferrer">{d.source}</a></p></div></details>}
+        {(cites.length > 0 || d.source) && <details className="evdet"><summary className="link evbtn">Sources</summary><div className="evpanel">{cites.length ? <Cites cites={cites} sources={sources} /> : <p><a href={d.source} target="_blank" rel="noopener noreferrer">{d.source}</a></p>}</div></details>}
         <HistoryPanel target={`places/${p.id}`} />
-        <div className="actions">{signedIn && <CorrectionBox target={`places/${p.id}`} title={p.title} />}</div>
+        <div className="actions">{mapUrl && <a href={mapUrl} target="_blank" rel="noopener noreferrer">Open in maps ↗</a>}{signedIn && <CorrectionBox target={`places/${p.id}`} title={p.title} />}</div>
         {ed && <div className="actions"><StatusForm col="places" id={p.id} status={p.status} note={p.verNote} /><DeleteButton col="places" id={p.id} label="Delete" confirmText="Delete this entry? It can be restored only from a backup." /></div>}
       </div>
     </article>
@@ -54,7 +57,7 @@ function Card({ p, ed, signedIn }: { p: Place; ed: boolean; signedIn: boolean })
 
 export default async function Recognition({ searchParams }: SP) {
   const sp = await searchParams;
-  const [places, who, camps] = await Promise.all([get<Place[]>("/api/places"), me(), get<Campaign[]>("/api/campaigns")]);
+  const [places, who, camps, sources] = await Promise.all([get<Place[]>("/api/places"), me(), get<Campaign[]>("/api/campaigns"), sourceMap()]);
   const ed = isEditor(who), signedIn = !!who.id;
   const all = (places ?? []).filter((p) => ed || p.status !== "rejected");
   const states = [...new Set(all.map((p) => place(p).state))].sort((a, b) => all.filter((p) => place(p).state === b).length - all.filter((p) => place(p).state === a).length);
@@ -92,7 +95,7 @@ export default async function Recognition({ searchParams }: SP) {
       </div>
       {places && (list.length ? groups.map((g) => (
         <section key={g}><h2 className="sect rstate">{g} <span>{list.filter((p) => place(p).state === g).length}</span></h2>
-          <div className="rgrid">{list.filter((p) => place(p).state === g).sort((a, b) => order(a) - order(b)).map((p) => <Card key={p.id} p={p} ed={ed} signedIn={signedIn} />)}</div></section>
+          <div className="rgrid">{list.filter((p) => place(p).state === g).sort((a, b) => order(a) - order(b)).map((p) => <Card key={p.id} p={p} ed={ed} signedIn={signedIn} sources={sources} />)}</div></section>
       )) : <p className="empty">No entries match these filters.</p>)}
       <h2 className="sect" id="add">Add an entry</h2>
       {canContribute(who) ? <ContributeForm kind="place" camps={(camps ?? []).map((c) => ({ id: c.id, name: c.name }))} /> : <p className="notice">{who.id ? "To contribute, ask the foundation to invite you as a contributor." : <>Please <Link href="/login?next=/recognition">sign in</Link> to add an entry.</>}</p>}

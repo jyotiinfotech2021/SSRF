@@ -9,13 +9,13 @@ export const metadata: Metadata = pageMeta("Regional chapters of the Sagat Singh
 
 // City positions for the map and a location line per chapter. Chapters abroad have no pin.
 const LOC: Record<string, { place: string; lat?: number; lng?: number }> = {
-  goa: { place: "Panaji, Goa", lat: 15.4989, lng: 73.8278 },
-  rajasthan: { place: "Bikaner, Rajasthan", lat: 28.0229, lng: 73.3119 },
-  delhi: { place: "New Delhi and the National Capital Region", lat: 28.6139, lng: 77.209 },
-  "pune-mumbai": { place: "Pune and Mumbai, Maharashtra", lat: 18.9, lng: 73.4 },
-  bengaluru: { place: "Bengaluru, Karnataka", lat: 12.9716, lng: 77.5946 },
-  northeast: { place: "Guwahati and the North-East", lat: 26.1445, lng: 91.7362 },
-  overseas: { place: "Members living abroad" },
+  goa: { place: "Panaji, Goa", lat: 15.49, lng: 73.83 },
+  rajasthan: { place: "Bikaner and Jaipur, Rajasthan", lat: 28.02, lng: 73.31 },
+  delhi: { place: "New Delhi and the National Capital Region", lat: 28.61, lng: 77.21 },
+  "pune-mumbai": { place: "Pune and Mumbai, Maharashtra", lat: 18.75, lng: 73.4 },
+  bengaluru: { place: "Bengaluru, Karnataka", lat: 12.97, lng: 77.59 },
+  northeast: { place: "Guwahati, Shillong and Gangtok", lat: 26.14, lng: 91.74 },
+  overseas: { place: "Bangladesh and abroad" },
 };
 
 export default async function Chapters() {

@@ -3,36 +3,38 @@ import Link from "next/link";
 import { pageMeta } from "@/lib/seo";
 import { get, me, canContribute, isEditor, type Book, type Campaign } from "@/lib/api";
 import { Unavailable, HistoryPanel } from "@/components/ui";
+import { englishTitle } from "@/lib/text";
 import ContributeForm from "@/components/ContributeForm";
 import CorrectionBox from "@/components/CorrectionBox";
 import { StatusForm, DeleteButton } from "@/components/Interact";
 
 export const metadata: Metadata = pageMeta("Videos and lectures about Lt Gen Sagat Singh", "Documentaries, interviews, talks and commemorations about Lt Gen Sagat Singh, made by other people. Each card opens the original video and credits its creator.", "/videos");
-type D = { author?: string; publisher?: string; year?: string; link?: string; duration?: string; vtype?: string; featured?: boolean };
+type D = { author?: string; creator?: string; featureOrder?: number; publisher?: string; year?: string; link?: string; duration?: string; vtype?: string; featured?: boolean };
 const VTALK = new Set(["Interview", "Speech", "Talk or lecture", "Commemoration"]);
 const VCAMP: Record<string, string> = { goa: "Goa 1961", nathula: "Nathu La 1967", meghna: "1971 war" };
 const vHost = (u?: string) => { try { const h = new URL(String(u)).hostname.replace(/^www\./, ""); return /youtu/.test(h) ? "YouTube" : ({ "thelallantop.com": "The Lallantop", "thequint.com": "The Quint" } as Record<string, string>)[h] || h; } catch { return ""; } };
 
 function VCard({ b, big, ed, signedIn, camps }: { b: Book; big?: boolean; ed: boolean; signedIn: boolean; camps: Campaign[] }) {
   const d = b.data as D, host = vHost(d.link), cs = b.camps ?? [];
+  const title = englishTitle(b.title, `Hindi-language video${(b.data as D).publisher ? " from " + (b.data as D).publisher : ""}`);
   const camp = cs.length === 1 ? VCAMP[cs[0]] ?? camps.find((c) => c.id === cs[0])?.name : cs.length > 1 ? "His career" : "";
-  const meta = [d.author, d.year, d.duration].filter(Boolean).join(" · ");
+  const meta = [d.creator || d.author, d.year, d.duration].filter(Boolean).join(" · ");
   return (
     <article className={`vcard${big ? " big" : ""}`} id={b.id}>
       {/* No thumbnail is fetched from the video site: nothing loads from a third party until the visitor follows the link. */}
-      <a className="vthumbwrap" href={d.link} target="_blank" rel="noopener noreferrer" aria-label={`Watch ${b.title} on ${host}`}>
-        <div className="vposter"><span className="vposter-camp">{camp || d.vtype || "Video"}</span><span className="vposter-title">{b.title}</span></div>
+      <a className="vthumbwrap" href={d.link} target="_blank" rel="noopener noreferrer" aria-label={`Watch ${title} on ${host}`}>
+        <div className="vposter"><span className="vposter-camp">{camp || d.vtype || "Video"}</span><span className="vposter-title">{title}</span></div>
         <span className="vplay" aria-hidden="true" />
         {d.duration && <span className="vdur">{d.duration}</span>}
         {d.vtype && d.vtype !== "Documentary" && <span className="vtype">{d.vtype}</span>}
       </a>
       <div className="vbody">
-        <h3><a href={d.link} target="_blank" rel="noopener noreferrer">{b.title}</a></h3>
+        <h3><a href={d.link} target="_blank" rel="noopener noreferrer">{title}</a></h3>
         {meta && <p className="vmeta">{meta}</p>}
         {b.description && <p className="vdesc">{b.description}</p>}
         {b.verNote && <p className="meta">{b.verNote}</p>}
-        <p className="vcredit">Original on <a href={d.link} target="_blank" rel="noopener noreferrer">{host || "source site"}</a>{d.author ? `, by ${d.author}` : ", credited to the channel that uploaded it"}. Views and credit stay with the creator.</p>
-        <div className="actions">{signedIn && <CorrectionBox target={`books/${b.id}`} title={b.title} />}</div>
+        <p className="vcredit">Original on <a href={d.link} target="_blank" rel="noopener noreferrer">{host || "source site"}</a>{d.creator || d.author ? `, by ${d.creator || d.author}` : ", credited to the channel that uploaded it"}. Views and credit stay with the creator.</p>
+        <div className="actions">{signedIn && <CorrectionBox target={`books/${b.id}`} title={title} />}</div>
         <HistoryPanel target={`books/${b.id}`} />
         {ed && <div className="actions"><StatusForm col="books" id={b.id} status={b.status} note={b.verNote} /><DeleteButton col="books" id={b.id} label="Delete" confirmText="Delete this entry? It can be restored only from a backup." /></div>}
       </div>
@@ -45,7 +47,8 @@ export default async function Videos({ searchParams }: { searchParams: Promise<{
   const [books, who, camps] = await Promise.all([get<Book[]>("/api/books"), me(), get<Campaign[]>("/api/campaigns")]);
   const ed = isEditor(who), signedIn = !!who.id, cl = camps ?? [];
   const all = (books ?? []).filter((b) => b.kind === "Documentary or video" && (ed || b.status !== "rejected"));
-  const grid = (l: Book[], big?: boolean) => <div className={`vgrid${big ? " big" : ""}`}>{l.map((b) => <VCard key={b.id} b={b} big={big} ed={ed} signedIn={signedIn} camps={cl} />)}</div>;
+  const byOrder = (a: Book, b: Book) => ((a.data as D).featureOrder ?? 99) - ((b.data as D).featureOrder ?? 99) || String(a.createdAt).localeCompare(String(b.createdAt));
+  const grid = (l: Book[], big?: boolean) => <div className={`vgrid${big ? " big" : ""}`}>{[...l].sort(byOrder).map((b) => <VCard key={b.id} b={b} big={big} ed={ed} signedIn={signedIn} camps={cl} />)}</div>;
   const feat = all.filter((b) => (b.data as D).featured), rest = all.filter((b) => !(b.data as D).featured);
   const talks = rest.filter((b) => VTALK.has((b.data as D).vtype ?? "")), docs = rest.filter((b) => !VTALK.has((b.data as D).vtype ?? ""));
   const groups: [string, Book[]][] = [...cl.map((c): [string, Book[]] => [c.name, docs.filter((b) => (b.camps ?? []).length === 1 && b.camps[0] === c.id)]), ["His life and career", docs.filter((b) => (b.camps ?? []).length !== 1)]];
