@@ -108,7 +108,7 @@ export default async function Learn({ searchParams }: SP) {
 
       <h2 className="sect" id="l-teach">For teachers</h2>
       <div className="tgrid">
-        <a className="tcard" href="/learn/ssrf-teachers-guide.pdf" download="ssrf-teachers-guide.pdf"><span className="tic">PDF</span><b>Teacher&apos;s guide</b><span>A 45-minute lesson plan, learning objectives, timeline, discussion questions for two age groups and further reading.</span><em>Download ↓</em></a>
+        <a className="tcard" href="/learn/ssrf-teachers-guide.pdf" download="ssrf-teachers-guide.pdf"><span className="tic">PDF</span><b>Teacher&apos;s guide</b><span>A 45-minute lesson plan, learning objectives, timeline, discussion questions for two age groups and further reading. 3 pages.</span><em>Download ↓</em></a>
         <a className="tcard" href="/learn/ssrf-classroom-slides.pdf" download="ssrf-classroom-slides.pdf"><span className="tic">PDF</span><b>Classroom slides</b><span>Ten slides for a classroom screen: his life, the three campaigns, a source to read together and a class activity.</span><em>Download ↓</em></a>
         <div className="tcard plain"><span className="tic">Q</span><b>Teacher mode in the quiz</b><span>One question at a time on the classroom screen, no scoring, answers revealed when you choose. Tick &quot;Teacher mode&quot; before starting the quiz.</span></div>
       </div>
