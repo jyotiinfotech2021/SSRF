@@ -1,0 +1,40 @@
+{
+  "format": "SSRF database backup",
+  "version": 3,
+  "note": "Past events shown on the approved prototype Events page. Titles, dates, places, organisers and short descriptions are as shown there. Reports state only facts checked against the cited pages (see 'press'); open points are written into the report. The prototype's own report wording and photographs are not reproduced: they come with the live data export.",
+  "collections": {
+    "events": [
+      {
+        "id": "churu-statue-2026", "title": "Statue unveiling in Churu", "type": "Commemorative", "date": "2026-04-22", "status": "published",
+        "place": "Lt Gen Sagat Singh Stadium, Churu, Rajasthan",
+        "description": "Unveiling of his statue at the stadium in Churu named after him.",
+        "summary": "A statue of Lt Gen Sagat Singh was unveiled on 22 April 2026 at the Lieutenant General Sagat Singh Stadium in Churu. The Governor of Sikkim, Om Prakash Mathur, was chief guest. The Rajasthan Chief Minister, Bhajan Lal Sharma, the Lok Sabha Speaker, Om Birla, and the Union minister Bhagirath Choudhary are named as present.",
+        "outcomes": "Sources differ on who performed the unveiling: the English release does not say, and its Hindi text says the Governor. The release also says a statue was unveiled at Nathu La during the previous year's Nathu La Vijay Diwas.",
+        "press": "Lok Bhavan (Raj Bhavan) Sikkim press release, 22 April 2026: https://rajbhavansikkim.gov.in/22-04-2026-a-statue-of-lieutenant-general-sagat-singh-was-unveiled-today-at-the-lieutenant-general-sagat-singh-stadium-in-churu-rajasthan-the-governor-of-sikkim-graced-the-occasion/"
+      },
+      {
+        "id": "nathula-vijay-diwas-2025", "title": "59th Nathula Vijay Diwas and statue unveiling", "type": "Commemorative", "date": "2025-09-11", "status": "published",
+        "place": "Nathu La, Sikkim", "camps": ["nathula"],
+        "description": "Annual commemoration of the 1967 Nathu La and Cho La clashes, fought under his command.",
+        "summary": "The Governor of Sikkim unveiled a statue of Lt Gen Sagat Singh at the 59th Nathula Vijay Diwas, as stated in the release of Raj Bhavan, Sikkim, dated 11 September 2025.",
+        "press": "Raj Bhavan, Sikkim, release on the 59th Nathula Vijay Diwas: https://rajbhavansikkim.gov.in/?p=17216"
+      },
+      {
+        "id": "birth-centenary-2019", "title": "Birth centenary celebrations", "type": "Commemorative", "date": "2019-07-08", "time": "8 to 14 July 2019", "status": "published",
+        "place": "Jaipur and Jodhpur, Rajasthan", "organiser": "Indian Army",
+        "description": "The Indian Army marked his birth centenary under Sapta Shakti Command, Jaipur and the Jodhpur-based Konark Corps.",
+        "summary": "A bust was inaugurated at Jaipur Military Station on the eve of the centenary, as reported by the news agency ANI. Near Sherathang in Sikkim, the General Officer Commanding of the Black Cat Division unveiled a bust of him at the Baba Harbhajan Singh Shrine, as reported by the Assam Tribune.",
+        "outcomes": "Open point: the Assam Tribune page is stamped 15 September 2010, which cannot be right for a centenary event. It is placed here in 2019 because the report refers to the birth centenary. A second source for the Sherathang date is wanted.",
+        "press": "ANI via LatestLY: https://www.latestly.com/agency-news/bust-of-war-hero-lt-gen-sagat-singh-inaugurated-in-jaipur-1011112.html . Assam Tribune: https://assamtribune.com/bust-of-iron-man-of-nathu-la-inaugurated"
+      },
+      {
+        "id": "talent-for-war-release-2013", "title": "Release of the biography A Talent for War", "type": "Research", "date": "2013-10-18", "status": "published",
+        "place": "United Service Institution of India, New Delhi", "organiser": "United Service Institution of India",
+        "description": "Release of A Talent for War: The Military Biography of Lt Gen Sagat Singh by Maj Gen Randhir Sinh (Retd).",
+        "summary": "General Bikram Singh, then Chief of the Army Staff, released the book.",
+        "outcomes": "Open point: this rests on the title of the event listing on the USI website; the listing page itself could not be opened (404), so the venue details beyond the institution are not recorded.",
+        "press": "USI of India event listing (title only; page not reachable): https://www.usiofindia.org/events-details/the-book-a-talent-for-war-the-military-biography-of-lt-gen-sagat-singh-authored-by-maj-gen-ks-randhir-sinh-uysm-avsm-sm-retd-is-being-released-by-general-bikram-singh-pvsm-uysm-avsm-sm.html"
+      }
+    ]
+  }
+}

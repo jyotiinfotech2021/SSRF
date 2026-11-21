@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { get, me, type Campaign, type Claim, type Entity, type Cite } from "@/lib/api";
+import { MeghnaMap } from "@/components/LearnMaps";
 import { PageHead, ClaimCard, Cites, ShortCite, sourceMap, HistoryPanel, CitePanel } from "@/components/ui";
 
 type Params = { params: Promise<{ id: string }> };
@@ -34,6 +35,7 @@ export default async function CampaignPage({ params }: Params) {
       <PageHead title={c.name} lead={text("lead")} />
       <p className="meta">{text("theatre")} · {text("dates")}</p>
       {section("Background", "background")}
+      {id === "meghna" && <section id="map"><h2 className="sect">Map</h2><MeghnaMap /></section>}
       {section("Situation", "situation")}
       {section("Objectives", "objectives")}
       {section("His role", "role")}

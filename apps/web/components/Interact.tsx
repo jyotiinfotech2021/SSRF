@@ -22,7 +22,7 @@ export function AttendButton({ id, initial, count, signedIn }: { id: string; ini
       if (!r.ok) return toast(r.error);
       setOn(r.data.registered); setN((x) => x + (r.data.registered ? 1 : -1));
       toast(r.data.registered ? "You're registered" : "Registration cancelled");
-    }}>{on ? "Registered. Cancel" : "Register interest"} · {n}</button>
+    }}>{on ? "Registered. Cancel" : "Register to attend"} · {n}</button>
   );
 }
 
