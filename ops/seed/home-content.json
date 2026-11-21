@@ -1,0 +1,47 @@
+{
+  "format": "SSRF database backup",
+  "version": 3,
+  "note": "Home-page content taken from the approved prototype home page (screenshots supplied by the foundation). Images are in apps/web/public/home and are the foundation's own artist's renderings. Replace them with full-resolution originals through the admin tools when available.",
+  "collections": {
+    "site": [
+      { "id": "portrait", "url": "/home/portrait.jpg", "caption": "Lt Gen Sagat Singh", "credit": "Artist's impression, not a photograph", "rights": "I own the rights" }
+    ],
+    "places": [
+      {
+        "id": "bikaner-memorial", "title": "Lt Gen Sagat Singh Memorial, Bikaner", "kind": "Proposal", "status": "checking",
+        "location": "Bikaner",
+        "description": "A memorial planned in Bikaner, centred on his bronze bust before a wall of relief panels from his campaigns.",
+        "featured": true, "featureOrder": 1,
+        "homeBlurb": "A memorial planned in Bikaner, centred on his bronze bust before a wall of relief panels from his campaigns.",
+        "imagesNote": "From the memorial plan. They show what the memorial could look like, and the likeness of the General in the bust is an artist's impression.",
+        "images": [
+          { "url": "/home/memorial-banner.jpg", "caption": "The memorial: bust and plinth before the battle heritage wall", "wide": true },
+          { "url": "/home/memorial-masterplan.jpg", "caption": "Master plan, 40 x 80 ft: entrance gate, flag plaza, leadership walkway, statue plaza" },
+          { "url": "/home/memorial-bust.jpg", "caption": "Bust detail: 42 in bronze bust on a 6 ft plinth, about 9.5 ft overall", "fit": "contain" },
+          { "url": "/home/memorial-wall.jpg", "caption": "Battle heritage wall panels: early years, Goa 1961, Nathu La and Cho La 1967, Meghna 1971, legacy", "fit": "contain" }
+        ]
+      },
+      {
+        "id": "bikaner-museum", "title": "Lt Gen Sagat Singh Museum, Gun House, Bikaner", "kind": "Proposal", "status": "checking",
+        "location": "Bikaner", "archiveId": "SSRF-DO-00001",
+        "description": "The Gun House in Bikaner was the residence the Maharaja of Bikaner gave him after his marriage. A plan has been prepared to turn it into a museum of his life, room by room.",
+        "featured": true, "featureOrder": 2,
+        "homeBlurb": "The Gun House in Bikaner was the residence the Maharaja of Bikaner gave him after his marriage. A plan has been prepared to turn it into a museum of his life, room by room.",
+        "imagesNote": "From the museum plan. They show what the museum could look like, and the likenesses of the General in them are artists' impressions.",
+        "images": [
+          { "url": "/home/museum-gate.jpg", "caption": "Front gate, flanked by field guns" },
+          { "url": "/home/museum-garden.jpg", "caption": "Garden, with a tank on display and his bust" },
+          { "url": "/home/museum-building.jpg", "caption": "Building front with the bilingual museum sign" },
+          { "url": "/home/museum-entrance.jpg", "caption": "Entrance: statue before the 1971 surrender photograph" }
+        ]
+      }
+    ],
+    "archive": [
+      { "id": "SSRF-DO-00001", "title": "Lt Gen Sagat Singh Museum, Gun House, Bikaner", "category": "Document", "collection": "Sagat Singh Personal Archive", "access": "Public", "status": "checking", "nature": "Primary source", "description": "Plan for the Gun House museum in Bikaner.", "verNote": "Catalogued; awaiting verification by a second editor" }
+    ],
+    "events": [
+      { "id": "vijay-diwas-2026", "title": "Vijay Diwas", "type": "Commemorative", "date": "2026-12-16", "location": "Nationwide", "place": "Nationwide", "status": "published", "description": "Vijay Diwas, marking the 1971 victory." },
+      { "id": "goa-liberation-day-2026", "title": "Goa Liberation Day", "type": "Commemorative", "date": "2026-12-19", "location": "Goa", "place": "Goa", "status": "published", "description": "Goa Liberation Day, marking the 19 December 1961 surrender." }
+    ]
+  }
+}

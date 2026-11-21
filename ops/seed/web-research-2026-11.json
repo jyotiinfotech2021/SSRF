@@ -1,0 +1,88 @@
+{
+  "format": "SSRF database backup",
+  "version": 3,
+  "note": "Catalogue entries compiled from published web sources on 21 Nov 2026 for the Library, Videos and Recognition register. Only facts stated by the cited page are recorded; open points are in verNote. Every entry starts as 'checking' (needs a second editor). Short original summaries only; the source is linked, not copied.",
+  "collections": {
+    "books": [
+      {
+        "id": "web-talent-for-war", "title": "A Talent for War: The Military Biography of Lt Gen Sagat Singh", "kind": "Biography", "status": "checking",
+        "author": "Maj Gen K S Randhir Sinh (retd)", "publisher": "VIJ Books (India)", "year": "2013", "isbn": "978-93-82652-23-6",
+        "link": "https://www.schweitzer-online.de/en/buch/Singh/Talent-for/9789382652236/A21921398/",
+        "description": "The full military biography of Sagat Singh. Its author was his ADC. Already cited on this site as 'book' for the Goa and Nathu La claims.",
+        "nature": "Secondary research",
+        "verNote": "Publisher, year and ISBN are from bookseller listings only. The launch event page at the United Service Institution of India could not be opened (404), so launch date and venue are not recorded. Author name appears as both Randhir Sinh and Randhir Singh in listings; the Tribune feature below uses Sinh."
+      },
+      {
+        "id": "web-tribune-2021-visionary-warrior", "title": "The visionary warrior Sagat Singh", "kind": "Article", "status": "checking",
+        "author": "Maj Gen Randhir Sinh (retd), who was ADC to Lt Gen Sagat Singh", "publisher": "The Tribune", "year": "2021", "date": "8 August 2021",
+        "link": "https://www.tribuneindia.com/news/features/the-visionary-warrior-sagat-singh-294742",
+        "description": "A feature tracing his career from the Bikaner state forces through Goa in 1961, the 1967 watershed and Nathu La fence, Mizoram counter-insurgency, and the 1971 Meghna crossing and Dhaka campaign.",
+        "nature": "Secondary research",
+        "verNote": "Written by his former ADC, so it contains a first-hand element; the page byline field says only 'Tribune Web Desk' and the author is identified from the text."
+      },
+      {
+        "id": "web-tribune-2017-bdesh", "title": "'If there's B'desh, it's due to Lt Gen Sagat'", "kind": "Article", "status": "checking",
+        "author": "Bhartesh Singh Thakur", "publisher": "The Tribune (Tribune News Service)", "year": "2017", "date": "10 December 2017",
+        "link": "https://www.tribuneindia.com/news/archive/-if-there-s-b-desh-it-s-due-to-lt-gen-sagat-510862",
+        "description": "Report of a Military Literature Festival session in Chandigarh at which a 1974 audio recording of Sagat Singh was played. Speakers credited him with the 1971 helicopter crossing of the Meghna and said he opened artillery fire to defend Nathu La in 1967.",
+        "nature": "Secondary research",
+        "verNote": "The statements about 1967 and 1971 are the speakers' claims as reported, not independently confirmed here."
+      },
+      {
+        "id": "web-theprint-2018-nathula", "title": "Inside story of how India gave China a bloody nose very close to Doklam, 50 years ago", "kind": "Article", "status": "checking",
+        "author": "Vandana Menon and Nayanika Chatterjee", "publisher": "ThePrint (PastForward)", "year": "2018", "date": "12 March 2018",
+        "link": "https://theprint.in/past-forward/how-india-gave-china-a-bloody-nose-close-to-doklam-50-years-ago/38330",
+        "description": "Long-form report on the 1967 Nathu La clash. It describes him, as commander of 17 Mountain Division, as central to holding the pass.",
+        "nature": "Secondary research",
+        "verNote": "Account of 1967 events; the specific incident it relays from his biography has not been checked against the book."
+      },
+      {
+        "id": "web-lhi-2020-goa", "title": "Sagat Singh: Liberator of Goa with a Price on his Head", "kind": "Article", "status": "checking",
+        "author": "Ankush Rai", "publisher": "LiveHistoryIndia", "year": "2020", "date": "5 December 2020",
+        "link": "https://livehistoryindia.com/story/history-daily/sagat-singh",
+        "description": "A profile covering the 1961 Goa operation (including the Portuguese bounty on him), Nathu La in 1967, the 1971 Meghna heliborne operation and his Padma Bhushan.",
+        "nature": "Secondary research", "assessment": "disputed",
+        "verNote": "DISCREPANCY: this page gives his birth year as 1918. The foundation records 1919, and the India Sentinels piece in this list also says 1919. Do not rely on this page for dates until the birth year is settled from a primary record."
+      },
+      {
+        "id": "web-sentinels-2025-architect", "title": "Lieutenant General Sagat Singh: The architect of India's boldest military triumphs", "kind": "Article", "status": "checking",
+        "author": "Archit Pratap Singh", "publisher": "India Sentinels", "year": "2025", "date": "14 July 2025",
+        "link": "https://www.indiasentinels.com/top-stories/lieutenant-general-sagat-singh-the-architect-of-indias-boldest-military-triumphs-6926",
+        "description": "A birth-anniversary tribute covering Bikaner, Goa, Nathu La (the pass and the watershed), the Meghna heliborne crossing, his awards and legacy.",
+        "nature": "Tertiary source",
+        "verNote": "Tribute or opinion piece rather than research; useful for how he is remembered."
+      },
+      {
+        "id": "web-quint-2020-1967", "title": "1967: When India Fought China to Restore Its Self-Respect And Won", "kind": "Documentary or video", "status": "checking",
+        "author": "Ankita Sinha (producer); video editor Ashish MacCune", "publisher": "The Quint", "year": "2020", "date": "19 February 2020",
+        "link": "https://www.thequint.com/videos/news-videos/watershed-1967-india-forgotten-victory-fought-china-restore-self-respect-won",
+        "description": "A Quint news-video page on the 1967 clashes, with comments from author Probal DasGupta. It says his decision at Nathu La in August 1967 stopped a Chinese attempt to take the pass.",
+        "nature": "Secondary research",
+        "verNote": "The page describes a podcast player that was not visible in the text read, so it is not confirmed whether the media is video or audio. It is about the 1967 clashes in general, not only about him."
+      }
+    ],
+    "places": [
+      {
+        "id": "web-jaipur-bust-2019", "title": "Bust of Lt Gen Sagat Singh, Jaipur Military Station", "kind": "Bust", "status": "checking",
+        "location": "Jaipur Military Station, Rajasthan",
+        "description": "A bust unveiled at Jaipur Military Station on the eve of his birth centenary, in July 2019, as reported by the news agency ANI.",
+        "source": "https://www.latestly.com/agency-news/bust-of-war-hero-lt-gen-sagat-singh-inaugurated-in-jaipur-1011112.html",
+        "verNote": "From the ANI report already cited on this site as source 'ani2019'. A second report (Lokmat Times) could not be opened to confirm. Exact date not recorded here."
+      },
+      {
+        "id": "web-sherathang-bust", "title": "Bust of Lt Gen Sagat Singh, Baba Harbhajan Singh Shrine, near Sherathang (Nathu La)", "kind": "Bust", "status": "recheck",
+        "location": "Near Sherathang, Sikkim",
+        "description": "A bust unveiled by the General Officer Commanding of the Black Cat Division, reported on the day the division marked his birth centenary (a 14 July dateline). The article calls him 'The Iron Man of Nathu La'.",
+        "source": "https://assamtribune.com/bust-of-iron-man-of-nathu-la-inaugurated",
+        "verNote": "DATE UNRESOLVED: the Assam Tribune page is stamped 15 Sept 2010, but the report refers to the birth centenary, which would be 2019. The year is not given in the text. Needs a second source before the date is recorded. The GOC is not named."
+      },
+      {
+        "id": "web-churu-statue-2026", "title": "Statue of Lt Gen Sagat Singh, Lt Gen Sagat Singh Stadium, Churu", "kind": "Statue", "status": "checking",
+        "location": "Churu, Rajasthan",
+        "description": "A statue unveiled on 22 April 2026 at the Lieutenant General Sagat Singh Stadium in Churu. The Governor of Sikkim was chief guest; the Rajasthan Chief Minister, the Lok Sabha Speaker and a Union minister are named as present.",
+        "source": "https://rajbhavansikkim.gov.in/22-04-2026-a-statue-of-lieutenant-general-sagat-singh-was-unveiled-today-at-the-lieutenant-general-sagat-singh-stadium-in-churu-rajasthan-the-governor-of-sikkim-graced-the-occasion/",
+        "verNote": "From the Lok Bhavan (Raj Bhavan) Sikkim press release dated 22 April 2026. The English text does not say who performed the unveiling (the Hindi text says the Governor). The release also says a statue was unveiled at Nathu La during the previous year's Nathu La Vijay Diwas; that statue has not yet been catalogued here."
+      }
+    ]
+  }
+}
