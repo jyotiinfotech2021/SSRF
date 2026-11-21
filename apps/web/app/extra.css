@@ -348,3 +348,7 @@ a.acoll b, a.acoll span, a.atype { text-decoration: none; }
 /* Learning cards: the "Think about it" box and the link sit on the same baseline across all four cards */
 .lccard-body .lcq { margin-top: auto; }
 .lccard-body .actions { margin-top: var(--sp-2); }
+
+/* Selected filter chips match the selected tabs: light fill, dark text, burgundy underline (no dark olive blocks) */
+.atype.on { background: #fff; color: var(--ink); border-color: var(--beret); box-shadow: inset 0 -3px 0 var(--beret); }
+.atype.on i { color: var(--muted); opacity: 1; }
