@@ -1,0 +1,26 @@
+# Production overlay: adds HTTPS (Caddy) in front of the site and stops publishing the web port.
+# Use together with the base file:  docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [web]
+    environment:
+      DOMAIN: ${DOMAIN:-sagatsingh.org}
+      ACME_EMAIL: ${ACME_EMAIL:?set ACME_EMAIL in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+  web:
+    # Only Caddy talks to the website; it is no longer reachable from outside the server.
+    ports: !override []
+
+volumes:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,22 @@
+# HTTPS front door for the SSRF site. Caddy gets and renews the certificate on its own (Let's Encrypt).
+# DOMAIN and ACME_EMAIL come from .env through docker-compose.prod.yml.
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN:sagatsingh.org} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+
+	# The website serves its own cache headers (see docs/performance.md); Caddy passes them through untouched.
+	reverse_proxy web:3000
+}
+
+# www goes to the bare domain.
+www.{$DOMAIN:sagatsingh.org} {
+	redir https://{$DOMAIN:sagatsingh.org}{uri} permanent
+}
