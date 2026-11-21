@@ -23,13 +23,20 @@ const VCAMP: Record<string, string> = { goa: "Goa 1961", nathula: "Nathu La 1967
 type D = { author?: string; creator?: string; publisher?: string; year?: string; link?: string; linkLabel?: string; featured?: boolean; featureOrder?: number };
 const byline = (d: D) => d.creator || d.author || "";
 
-function Cover({ b, big }: { b: Book; big?: boolean }) {
+// Real cover images the foundation uploaded are kept in /library/covers; the designed cover sits underneath until they load.
+function Cover({ b, big, inner }: { b: Book; big?: boolean; inner?: boolean }) {
   const d = b.data as D, g = lgroup(b.kind), v = b.status === "verified", sz = big ? " big" : "";
-  const seal = v ? <span className="lseal" title="Verified by SSRF">✓</span> : null;
+  const cover = (b.data as { cover?: string }).cover, asset = cover && /^\/_blob\/[0-9a-f]{32}$/.test(cover) ? cover.slice(7) : "";
+  if (asset && !inner) return (
+    <div className={`lcov real${sz}`}><Cover b={b} big={big} inner />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className="lcov-img" src={`/library/covers/${asset}.jpg`} alt={`Cover of ${b.title}`} loading="lazy" />
+      {v && <span className="lseal" title="Verified by SSRF">✓</span>}</div>);
+  const seal = v && !inner ? <span className="lseal" title="Verified by SSRF">✓</span> : null;
   if (g === "articles") return <div className={`lcov clip${sz}`}><span className="mast">{d.publisher || byline(d)}</span><span className="rule" /><span className="head">{shortTitle(b.title)}</span><span className="cols" />{seal}</div>;
   if (g === "records") return <div className={`lcov folder${sz}`}><span className="tab">{LTYPE[b.kind ?? ""] || "Record"}</span><span className="org">{byline(d) || d.publisher || ""}</span><span className="head">{shortTitle(b.title)}</span><span className="stamp">{d.year || ""}</span>{seal}</div>;
   if (g === "films") return <div className={`lcov reel${sz}`}><span className="mast">{d.publisher || "Film"}</span><span className="head">{shortTitle(b.title)}</span><span className="by">{d.year || ""}</span>{seal}</div>;
-  return <div className={`lcov cloth${g === "theses" ? " thesis" : ""}${sz}`} style={{ ["--cl" as string]: CLOTH[hsh(b.title) % CLOTH.length] }}><span className="spine" /><span className="frame"><span className="head">{shortTitle(b.title)}</span><span className="orn">✦</span><span className="by">{String(byline(d)).replace(/\s*\(Retd\)/, "")}</span></span>{seal}</div>;
+  return <div className={`lcov cloth${g === "theses" ? " thesis" : ""}${sz}${inner ? " under" : ""}`} style={{ ["--cl" as string]: CLOTH[hsh(b.title) % CLOTH.length] }}><span className="spine" /><span className="frame"><span className="head">{shortTitle(b.title)}</span><span className="orn">✦</span><span className="by">{String(byline(d)).replace(/\s*\(Retd\)/, "")}</span></span>{seal}</div>;
 }
 
 function Meta({ b }: { b: Book }) {

@@ -12,4 +12,6 @@ Reconciliation:
 
 English only: records keep their original text. Pages show the English part of a title; videos with Hindi-only titles are labelled "Hindi-language video from <site>". Research notes that quote a Hindi spelling are shown as written.
 
-Not recoverable from the live database: uploaded file bytes (book covers, archive scans, the portrait). Covers use designed placeholders until the files are re-uploaded.
+Uploaded files: the ten book covers were downloaded from the artifact's asset store and now live in `apps/web/public/library/covers/`. The two 10 MB PDFs, the archive scans and other assets are still in `export/assets` only where downloaded; the museum plan PDF has not been fetched.
+
+Library replaced with the live content: the five remaining web-research articles and one stray story that were not in the live data were removed (backup: `export/pre-replace-2026-11-21.sql`). The Library page now shows the live items with real covers, verified labels and the featured publication.
