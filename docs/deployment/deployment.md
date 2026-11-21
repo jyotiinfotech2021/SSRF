@@ -13,6 +13,16 @@ cd apps/web; $env:API_URL="http://localhost:5080"; npm run dev
 ## Production stack
 `docker compose up -d --build` after copying `.env.example` to `.env`. Services: `db`, `api` (migrates on start), `web`, `backup` (nightly dump + uploads archive, 14-day retention). Put a TLS-terminating reverse proxy in front of `web:3000`; the API is not published. Set `SITE_URL` to the public https address. Cookies are `Secure` in Production.
 
+## Domain: sagatsingh.org
+The public address is `https://sagatsingh.org`. To go live on it:
+1. Point the domain's DNS (`A`/`AAAA` records for `sagatsingh.org`, and `www` as a CNAME or a redirect) at the server.
+2. Terminate TLS in front of the `web` service (Caddy, nginx or the hosting provider) with a certificate for `sagatsingh.org`, redirect `http` to `https` and `www` to the bare domain.
+3. Set `SITE_URL=https://sagatsingh.org` in `.env` (the example already has it). It drives canonical links, Open Graph, the sitemap, `robots.txt`, citations and the links in password-reset email. Set `Proxy__TrustForwardedHeaders=true` on the API when it sits behind the proxy.
+4. Set `SMTP_FROM` to an address on the domain (for example `no-reply@sagatsingh.org`) and add SPF/DKIM records at the mail provider so reset email is delivered.
+5. Submit `https://sagatsingh.org/sitemap.xml` in Google Search Console.
+
+The only `localhost` addresses left in the repository are development defaults (the API at `localhost:5080`, the local database and the test mailbox). They are never used on the public site.
+
 ## Password reset email
 "Forgot password?" sends a one-time link (valid 24 hours, usable once). It needs an SMTP server: set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` and `SMTP_FROM` in `.env` (any provider: your mail host, SES, SendGrid SMTP, Gmail app password). With no `SMTP_HOST` the forgot-password page tells people honestly that reset by email is not set up. Links are built from `SITE_URL`.
 Answers never reveal whether an email has an account, and at most one reset email per address per minute is sent. Rate limiting applies only to register, login, forgot and reset, per visitor address (taken from X-Forwarded-For when `Proxy__TrustForwardedHeaders` is true).

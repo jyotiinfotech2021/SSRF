@@ -19,7 +19,7 @@ public class SmtpEmailSender(IConfiguration cfg) : IEmailSender
     {
         var host = cfg["Smtp:Host"]!;
         var port = cfg.GetValue("Smtp:Port", 587);
-        var from = cfg["Smtp:From"] ?? cfg["Smtp:User"] ?? "no-reply@localhost";
+        var from = cfg["Smtp:From"] ?? cfg["Smtp:User"] ?? "no-reply@sagatsingh.org";
         using var client = new SmtpClient(host, port) { EnableSsl = cfg.GetValue("Smtp:EnableSsl", port != 25 && port != 2525) };
         if (!string.IsNullOrEmpty(cfg["Smtp:User"])) client.Credentials = new NetworkCredential(cfg["Smtp:User"], cfg["Smtp:Password"]);
         using var msg = new MailMessage(new MailAddress(from, "Sagat Singh Research Foundation"), new MailAddress(to)) { Subject = subject, Body = textBody, IsBodyHtml = false };

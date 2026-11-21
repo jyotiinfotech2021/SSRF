@@ -38,7 +38,6 @@ export default async function Learn({ searchParams }: SP) {
             <div className="lccard-body">
               <h3>{c.t}</h3>
               <ul>{c.facts.map((f) => <li key={f}>{f}</li>)}</ul>
-              <p className="lcq"><b>Think about it:</b> {c.q}</p>
               <div className="actions">
                 <Link href={c.go[0]}>Read the full {c.go[1] ? "campaign" : "biography"} ›</Link>
                 {qn(c.k) > 0 && <Link className="link" href={`/learn?topic=${c.k}#quiz`}>Quiz: {qn(c.k)} questions</Link>}

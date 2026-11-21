@@ -77,7 +77,7 @@ export async function HistoryPanel({ target }: { target: string }) {
 }
 
 export function CitePanel({ title, path }: { title: string; path: string }) {
-  const url = `${process.env.SITE_URL ?? "http://localhost:3000"}${path}`;
+  const url = `${process.env.SITE_URL ?? "https://sagatsingh.org"}${path}`;
   const text = `Sagat Singh Research Foundation. "${title}". SSRF research platform. ${url}`;
   return <details className="citebox"><summary>Cite this page</summary><p className="cite-text">{text}</p></details>;
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const SITE = (process.env.SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+export const SITE = (process.env.SITE_URL ?? "https://sagatsingh.org").replace(/\/$/, "");
 export const SITE_NAME = "Sagat Singh Research Foundation";
 export const OG_DEFAULT = "/og-default.jpg";
 export const abs = (path: string) => (/^https?:\/\//.test(path) ? path : SITE + (path.startsWith("/") ? path : "/" + path));

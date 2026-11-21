@@ -80,7 +80,7 @@ public class AuthController(UserManager<AppUser> users, SignInManager<AppUser> s
             try
             {
                 var token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(await users.GeneratePasswordResetTokenAsync(u)));
-                var site = (cfg["Site:Url"] ?? cfg["SITE_URL"] ?? "http://localhost:3000").TrimEnd('/');
+                var site = (cfg["Site:Url"] ?? cfg["SITE_URL"] ?? "https://sagatsingh.org").TrimEnd('/');
                 var link = $"{site}/reset-password?email={Uri.EscapeDataString(dto.Email)}&token={token}";
                 await mail.SendAsync(dto.Email, "Reset your password",
                     $"Hello,\n\nSomeone asked to reset the password for this email on the Sagat Singh Research Foundation site. If it was you, open this link within 24 hours:\n\n{link}\n\nIf it was not you, ignore this message. Your password stays the same.\n");
