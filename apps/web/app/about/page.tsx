@@ -49,7 +49,7 @@ export default async function About() {
         <li>Anyone can suggest a correction on any entry. A correction is complete only when the public text has been changed, or the reason for not changing it is recorded. Every change is kept in the entry&apos;s public history.</li>
       </ol>
 
-      <h3 className="sect">Privacy notice</h3>
+      <h3 className="sect" id="sec-privacy">Privacy notice</h3>
       <ul className="prose">
         <li><b>Who holds your data.</b> The Sagat Singh Research Foundation{st.email ? <>, contactable at {st.email}</> : null}.</li>
         <li><b>What we hold.</b> The name you choose to show, your membership category, chapter, interests and what you contribute. We never ask for phone numbers, service numbers or identity documents.</li>

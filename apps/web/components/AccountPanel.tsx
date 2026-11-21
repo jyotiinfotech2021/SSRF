@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import { call } from "@/lib/client";
 import { toast } from "./Toast";
 import { CATEGORIES, STAGES } from "@/lib/ref";
@@ -11,46 +12,42 @@ const OPEN = ["submitted", "screening", "research", "factcheck", "approval", "ev
 
 export default function AccountPanel({ who, canContribute, profile, subs, chapters, camps }: Props) {
   const hasProfile = !!profile?.name;
+  const [dataReq, setDataReq] = useState(false);
   return (
-    <div className="acct">
-      <p className="acct-who">
-        <span>{who.email}</span>
-        <button className="link" onClick={async () => { await call("POST", "/api/auth/logout"); window.location.href = "/"; }}>Sign out</button>
-      </p>
+    <div>
+      <p className="meta">Signed in as {who.email}. <button className="link" onClick={async () => { await call("POST", "/api/auth/logout"); window.location.href = "/"; }}>Sign out</button></p>
 
-      {!hasProfile ? (
-        <section className="acct-card">
-          <h2>You&apos;re in.</h2>
-          <p className="acct-lead">You can already read everything, suggest corrections and register for events. Add your name if you&apos;d like to be a named member. It takes five seconds.</p>
-          <ProfileForm profile={profile} chapters={chapters} camps={camps} compact />
-        </section>
+      <h3 className="sect">My contributions</h3>
+      {subs.length === 0 ? (
+        <p className="meta">Nothing yet. Contribute from <Link href="/stories">Stories</Link>, the <Link href="/archive">archive</Link>, the <Link href="/library">library</Link>, <Link href="/recognition">recognition</Link> or <Link href="/events">events</Link>.</p>
       ) : (
-        <section className="acct-card">
-          <h2>Hello, {String(profile!.name)}</h2>
-          <p className="acct-lead">{profile!.category ? String(profile!.category) : "Member"}{profile!.listed ? " · listed in the members directory" : ""}</p>
-          <details className="acct-more"><summary>Edit my profile</summary><ProfileForm profile={profile} chapters={chapters} camps={camps} /></details>
-        </section>
-      )}
+        <ul className="plain subs">{subs.map((s) => (
+          <li key={s.id}>
+            <b>{s.data.title || s.data.name || KIND[s.kind]}</b> <span className="meta">{KIND[s.kind]} · {new Date(s.createdAt).toLocaleDateString("en-IN")}</span> <span className={`tag st-${s.status}`}>{STAGES[s.status] ?? s.status}</span>
+            {s.history.filter((h) => h.note).slice(-1).map((h, i) => <div className="snote" key={i}>Editors&apos; note: {h.note}</div>)}
+            {OPEN.includes(s.status) && <button className="link quiet" onClick={async () => { if (!confirm("Withdraw this contribution from review?")) return; const r = await call("POST", `/api/submissions/${s.id}/withdraw`); if (r.ok) { toast("Withdrawn"); window.location.reload(); } else toast(r.error); }}>Withdraw</button>}
+          </li>))}</ul>)}
+      {!canContribute && <p className="notice">Contributing stories, library items and archive items needs an invitation from the editors.</p>}
 
-      {!canContribute && <p className="acct-note">Contributing stories, library items and archive items needs an invitation from the editors.</p>}
+      <h3 className="sect">My profile</h3>
+      <ProfileForm profile={profile} chapters={chapters} camps={camps} />
 
-      {subs.length > 0 && (
-        <section>
-          <h2 className="acct-h">My contributions</h2>
-          <ul className="plain subs">{subs.map((s) => (
-            <li key={s.id}>
-              <b>{s.data.title || s.data.name || KIND[s.kind]}</b> <span className="meta">{KIND[s.kind]} · {new Date(s.createdAt).toLocaleDateString("en-IN")}</span> <span className={`tag st-${s.status}`}>{STAGES[s.status] ?? s.status}</span>
-              {s.history.filter((h) => h.note).slice(-1).map((h, i) => <div className="snote" key={i}>Editors&apos; note: {h.note}</div>)}
-              {OPEN.includes(s.status) && <button className="link quiet" onClick={async () => { if (!confirm("Withdraw this contribution from review?")) return; const r = await call("POST", `/api/submissions/${s.id}/withdraw`); if (r.ok) { toast("Withdrawn"); window.location.reload(); } else toast(r.error); }}>Withdraw</button>}
-            </li>))}</ul>
-        </section>
-      )}
-
-      <details className="acct-more acct-privacy">
-        <summary>Privacy and my data</summary>
-        <PrivacyForm />
-        {hasProfile && <DangerZone />}
-      </details>
+      <h3 className="sect">My data</h3>
+      <table className="plain">
+        <thead><tr><th>Action</th><th>What happens</th></tr></thead>
+        <tbody>
+          <tr><td>Hide my public profile</td><td>Untick &quot;List me&quot; above. Your name leaves the members list at once; your details stay visible only to you and the editors.</td></tr>
+          <tr><td>Remove my profile</td><td>Deletes your profile, salutes and event registrations now. Your past contributions and the editorial log remain, under your chosen attribution, until you ask for anonymisation or deletion.</td></tr>
+          <tr><td>Anonymise me</td><td>Editors replace your name with &quot;A member&quot; on everything you have published. The material stays in the record.</td></tr>
+          <tr><td>Withdraw a contribution</td><td>Editors unpublish the item you choose within 30 days.</td></tr>
+          <tr><td>Delete my personal data</td><td>Editors delete your profile and anonymise your contributions. Historical material may be kept without your name under the archival policy.</td></tr>
+        </tbody>
+      </table>
+      <div className="actions">
+        <button className="btn ghost small" onClick={() => setDataReq((v) => !v)}>Make a data request</button>
+        {hasProfile && <button className="link" onClick={async () => { if (!confirm("Remove your profile now? Your salutes and registrations are deleted too. Your past contributions stay until you ask for anonymisation.")) return; const r = await call("DELETE", "/api/me/profile"); if (r.ok) { toast("Profile removed"); window.location.reload(); } else toast(r.error); }}>Remove my profile now</button>}
+      </div>
+      {dataReq && <PrivacyForm onDone={() => setDataReq(false)} />}
     </div>
   );
 }
@@ -76,59 +73,49 @@ function ProfileForm({ profile, chapters, camps, compact }: { profile: Record<st
       setBusy(false);
       if (r.ok) { toast(p.name ? "Profile saved" : "Welcome. You're a member."); window.location.reload(); } else toast(r.error);
     }}>
-      <label htmlFor="pf-name">Your name</label>
-      <input id="pf-name" name="name" required maxLength={120} defaultValue={p.name as string} autoComplete="name" />
-      <label className="check"><input type="checkbox" name="adult" required defaultChecked={!!p.adult} /> I am 18 or over</label>
-
-      <details className="acct-extra" open={!compact}>
-        <summary>{compact ? "Add more details (optional)" : "More details"}</summary>
-        <label htmlFor="pf-title">Title</label><input id="pf-title" name="title" maxLength={80} defaultValue={p.title as string} />
-        <label htmlFor="pf-aff">Affiliation</label><input id="pf-aff" name="affiliation" maxLength={160} defaultValue={p.affiliation as string} />
-        <label htmlFor="pf-cat">Membership category</label>
-        <select id="pf-cat" name="category" defaultValue={(p.category as string) ?? ""}><option value="">Not stated</option>{CATEGORIES.map((c) => <option key={c}>{c}</option>)}</select>
-        <label htmlFor="pf-ch">Chapter</label>
-        <select id="pf-ch" name="chapter" defaultValue={(p.chapter as string) ?? ""}><option value="">None</option>{chapters.map((c) => <option key={c}>{c}</option>)}</select>
-        <label htmlFor="pf-con">Your connection to Sagat Singh or his story</label><textarea id="pf-con" name="connection" maxLength={1000} defaultValue={p.connection as string} />
-        <label htmlFor="pf-int">Research interests</label><textarea id="pf-int" name="interests" maxLength={1000} defaultValue={p.interests as string} />
-        <fieldset className="camps"><legend>Campaigns you care about</legend>{camps.map((c) => <label key={c.id} className="check"><input type="checkbox" name="camps" value={c.id} defaultChecked={(p.camps as string[] | undefined)?.includes(c.id)} /> {c.name}</label>)}</fieldset>
-        <label className="check"><input type="checkbox" name="listed" defaultChecked={!!p.listed} /> List me in the public members directory</label>
-        <label className="check"><input type="checkbox" name="showChapter" defaultChecked={!!p.showChapter} /> Show my chapter there</label>
-        <label className="check"><input type="checkbox" name="showContrib" defaultChecked={!!p.showContrib} /> Show my contributions there</label>
-        <label htmlFor="pf-photo">Photograph (under 5 MB)</label><input id="pf-photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp" />
-        <label className="check"><input type="checkbox" name="photoConsent" defaultChecked={!!p.photoConsent} /> I consent to this photograph being shown publicly in the directory</label>
-      </details>
-
-      <button className="auth-submit acct-save" type="submit" disabled={busy}>{busy ? "Saving…" : p.name ? "Save profile" : "Save my name"}</button>
+      <div className="panel">
+        <label htmlFor="pf-name">Name to show <small>(your name, or a name you prefer to use here)</small></label>
+        <input id="pf-name" name="name" required maxLength={120} defaultValue={p.name as string} autoComplete="name" />
+        <div className="grid2">
+          <div><label htmlFor="pf-cat">Membership category</label>
+            <select id="pf-cat" name="category" defaultValue={(p.category as string) ?? ""}><option value="">Not stated</option>{CATEGORIES.map((c) => <option key={c}>{c}</option>)}</select></div>
+          <div><label htmlFor="pf-ch">Chapter</label>
+            <select id="pf-ch" name="chapter" defaultValue={(p.chapter as string) ?? ""}><option value="">None</option>{chapters.map((c) => <option key={c}>{c}</option>)}</select></div>
+          <div><label htmlFor="pf-title">Rank or title <small>(optional, e.g. Col (Retd), Dr, Prof)</small></label><input id="pf-title" name="title" maxLength={80} defaultValue={p.title as string} /></div>
+          <div><label htmlFor="pf-aff">Unit, institution or affiliation <small>(optional)</small></label><input id="pf-aff" name="affiliation" maxLength={160} defaultValue={p.affiliation as string} /></div>
+        </div>
+        <label htmlFor="pf-con">Your connection to Sagat Singh <small>(did you serve in his army, or have a link to his story)</small></label>
+        <textarea id="pf-con" name="connection" maxLength={1000} defaultValue={p.connection as string} />
+        <label htmlFor="pf-int">Areas of interest</label>
+        <input id="pf-int" name="interests" maxLength={1000} defaultValue={p.interests as string} />
+        <fieldset className="camps"><legend>Related campaigns</legend>{camps.map((c) => <label key={c.id} className="check"><input type="checkbox" name="camps" value={c.id} defaultChecked={(p.camps as string[] | undefined)?.includes(c.id)} /> {c.name}</label>)}</fieldset>
+        <fieldset className="camps"><legend>Photograph <small>(optional)</small></legend>
+          <input id="pf-photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Photograph" />
+          <label className="check"><input type="checkbox" name="photoConsent" defaultChecked={!!p.photoConsent} /> I consent to this photograph of myself being shown in the public members directory. I can withdraw consent at any time by unticking this box.</label>
+        </fieldset>
+        <label className="check"><input type="checkbox" name="listed" defaultChecked={!!p.listed} /> List me in the members directory</label>
+        <label className="check"><input type="checkbox" name="showChapter" defaultChecked={!!p.showChapter} /> Show my chapter</label>
+        <label className="check"><input type="checkbox" name="showContrib" defaultChecked={!!p.showContrib} /> Show how many contributions I have published</label>
+        <label className="check"><input type="checkbox" name="adult" required defaultChecked={!!p.adult} /> I am 18 or over</label>
+        <p className="meta">See our <Link href="/about#sec-privacy">privacy notice</Link> for how your information is used.</p>
+        <div className="actions"><button className="btn" type="submit" disabled={busy}>{busy ? "Saving…" : "Save profile"}</button></div>
+      </div>
     </form>
   );
 }
 
-function PrivacyForm() {
-  const [open, setOpen] = useState(false);
+function PrivacyForm({ onDone }: { onDone: () => void }) {
   return (
-    <section>
-      <h3>Data and privacy requests</h3>
-      {!open ? <button className="btn ghost small" onClick={() => setOpen(true)}>Make a request</button> : (
-        <form className="acct-form" onSubmit={async (e) => {
-          e.preventDefault(); const f = new FormData(e.currentTarget);
-          const r = await call("POST", "/api/submissions", { kind: "privacy", data: { type: String(f.get("type")), item: String(f.get("item")), detail: String(f.get("detail")) } });
-          if (r.ok) { toast("Request sent. Editors respond within 30 days."); setOpen(false); } else toast(r.error);
-        }}>
-          <label htmlFor="pv-type">What do you need?</label>
-          <select id="pv-type" name="type" required><option value="anonymise">Anonymise my contributions</option><option value="deleteData">Delete my profile and personal data</option><option value="withdrawItem">Withdraw one of my published items</option><option value="access">Tell me what you hold about me</option></select>
-          <label htmlFor="pv-item">Which item (if any)</label><input id="pv-item" name="item" placeholder="e.g. stories/…" maxLength={200} />
-          <label htmlFor="pv-detail">Details</label><textarea id="pv-detail" name="detail" maxLength={2000} />
-          <div className="actions"><button className="btn small" type="submit">Send request</button> <button className="link" type="button" onClick={() => setOpen(false)}>Cancel</button></div>
-        </form>)}
-    </section>
-  );
-}
-
-function DangerZone() {
-  return (
-    <section><h3>Leave the foundation</h3>
-      <p className="meta">Removes your profile, salutes and event registrations. Your past contributions stay until you ask for anonymisation above.</p>
-      <button className="btn ghost small" onClick={async () => { if (!confirm("Remove your profile now? Your salutes and registrations are deleted too. Your past contributions stay until you ask for anonymisation.")) return; const r = await call("DELETE", "/api/me/profile"); if (r.ok) { toast("Profile removed"); window.location.reload(); } else toast(r.error); }}>Remove my profile</button>
-    </section>
+    <form className="panel" onSubmit={async (e) => {
+      e.preventDefault(); const f = new FormData(e.currentTarget);
+      const r = await call("POST", "/api/submissions", { kind: "privacy", data: { type: String(f.get("type")), item: String(f.get("item")), detail: String(f.get("detail")) } });
+      if (r.ok) { toast("Request sent. Editors respond within 30 days."); onDone(); } else toast(r.error);
+    }}>
+      <label htmlFor="pv-type">What do you need?</label>
+      <select id="pv-type" name="type" required><option value="anonymise">Anonymise my contributions</option><option value="deleteData">Delete my profile and personal data</option><option value="withdrawItem">Withdraw one of my published items</option><option value="access">Tell me what you hold about me</option></select>
+      <label htmlFor="pv-item">Which item (if any)</label><input id="pv-item" name="item" placeholder="e.g. stories/…" maxLength={200} />
+      <label htmlFor="pv-detail">Details</label><textarea id="pv-detail" name="detail" maxLength={2000} />
+      <div className="actions"><button className="btn small" type="submit">Send request</button> <button className="link" type="button" onClick={onDone}>Cancel</button></div>
+    </form>
   );
 }

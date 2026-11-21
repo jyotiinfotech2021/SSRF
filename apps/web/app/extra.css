@@ -2,7 +2,7 @@
 .skip { position: absolute; left: -9999px; top: 0; background: var(--olive-deep); color: var(--ivory); padding: .6rem 1rem; z-index: 100; }
 .skip:focus { left: .5rem; top: .5rem; }
 .seg-tabs a, .seg-tabs button { display: inline-block; text-decoration: none; padding: .45rem .9rem; border: 1px solid var(--brass-base); color: var(--olive-deep); background: transparent; font: inherit; cursor: pointer; margin: 0 .3rem .4rem 0; }
-.seg-tabs a[aria-selected="true"], .seg-tabs button[aria-selected="true"] { background: var(--olive-deep); color: var(--ivory); }
+.seg-tabs a[aria-selected="true"], .seg-tabs button[aria-selected="true"] { background: #fff; color: var(--ink); border-color: var(--beret); box-shadow: inset 0 -3px 0 var(--beret); }
 .pagehead h1 { font-family: var(--stencil); font-size: var(--fs-page); color: var(--burgundy); margin: 1rem 0 .4rem; }
 .pagehead .lead { max-width: 60ch; }
 ul.plain { list-style: none; padding: 0; }
@@ -342,7 +342,7 @@ a.acoll b, a.acoll span, a.atype { text-decoration: none; }
 
 /* Campaign tabs are links, styled like the prototype's tab buttons */
 .seg-tabs a { border: 1px solid var(--line); background: var(--surface); border-radius: 3px; padding: var(--sp-2) var(--sp-3); font-weight: 600; color: var(--muted); text-decoration: none; }
-.seg-tabs a[aria-selected="true"] { border-color: var(--beret); color: var(--ink); box-shadow: inset 0 -3px 0 var(--beret); }
+.seg-tabs a[aria-selected="true"] { background: #fff; border-color: var(--beret); color: var(--ink); box-shadow: inset 0 -3px 0 var(--beret); }
 .seg-tabs a:hover { color: var(--ink); }
 
 /* Learning cards: the "Think about it" box and the link sit on the same baseline across all four cards */
