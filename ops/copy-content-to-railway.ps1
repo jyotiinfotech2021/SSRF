@@ -16,6 +16,10 @@ $trunc = "TRUNCATE " + (($tables | ForEach-Object { "`"$_`"" }) -join ", ") + " 
 Write-Host "Dumped $($tables.Count) tables to $out ($([math]::Round((Get-Item $out).Length/1KB)) KB)"
 
 if ((Read-Host "Replace the content on the Railway database now? (yes/no)") -ne "yes") { Write-Host "Stopped. Nothing was changed."; return }
-docker run --rm -v "${out}:/c.sql:ro" postgres:17 psql "$Url" -v ON_ERROR_STOP=1 -f /c.sql
+$Url = $Url.Trim().Trim('"').Trim("'")
+if ($Url -notmatch '^postgres(ql)?://[^@]+@[^:/]+:\d+/\S+$') { throw "That is not a full Postgres address. It must look like postgresql://user:password@host:port/railway (copy DATABASE_PUBLIC_URL, not DATABASE_URL)." }
+$env:SSRF_TARGET_URL = $Url
+docker run --rm -e SSRF_TARGET_URL -v "${out}:/c.sql:ro" postgres:17 sh -c 'psql "$SSRF_TARGET_URL" -v ON_ERROR_STOP=1 -f /c.sql'
+$env:SSRF_TARGET_URL = $null
 if ($LASTEXITCODE -ne 0) { throw "Import failed. Check the message above." }
 Write-Host "Done. Reload the website."
