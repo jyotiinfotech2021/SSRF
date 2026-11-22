@@ -387,3 +387,11 @@ a.acoll b, a.acoll span, a.atype { text-decoration: none; }
 .quiz-setup .quiz-go .meta { margin: 0; padding: 0; white-space: nowrap; }
 .quiz-setup .btn { margin: 0; white-space: nowrap; }
 @media (max-width: 760px) { .quiz-setup { grid-template-columns: 1fr; } .quiz-setup .quiz-go { justify-content: space-between; } }
+
+/* Chapters: equal-height cards, with the stats row, note and "See members" aligned at the bottom of every card */
+.chgrid { align-items: stretch; }
+.chcard { height: 100%; }
+.chcard .chfacts { flex: 1 1 auto; }
+.chcard .chstats { margin-top: auto; }
+.chcard .chnone { margin: 0; min-height: 3.2em; }
+.chcard .actions { margin-top: 0; }
