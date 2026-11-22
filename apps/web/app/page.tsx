@@ -68,7 +68,7 @@ export default async function Home() {
                 <figure key={i.url} className={i.wide ? "wide" : undefined}>
                   <a href={assetUrl(i.url)} target="_blank" rel="noopener noreferrer">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={assetUrl(i.url)} alt={`${i.caption ?? f.title.split(" / ")[0]} (artist's rendering)`} loading="lazy" className={i.fit === "contain" ? "fit" : undefined} />
+                    <img src={i.wide ? assetUrl(i.url) : assetUrl(i.url).replace(/^\/recognition\//, "/recognition/sm/")} alt={`${i.caption ?? f.title.split(" / ")[0]} (artist's rendering)`} loading="lazy" decoding="async" fetchPriority="low" className={i.fit === "contain" ? "fit" : undefined} />
                   </a>
                   <figcaption>{i.caption}</figcaption>
                 </figure>

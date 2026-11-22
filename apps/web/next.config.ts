@@ -23,6 +23,7 @@ const nextConfig: NextConfig = {
       // Files named by a content id or hash never change, so browsers keep them for a year.
       { source: "/library/covers/:file", headers: [{ key: "Cache-Control", value: year }] },
       { source: "/recognition/:file", headers: [{ key: "Cache-Control", value: year }] },
+      { source: "/recognition/sm/:file", headers: [{ key: "Cache-Control", value: year }] },
       { source: "/thumbs/:file", headers: [{ key: "Cache-Control", value: year }] },
       // Site images and downloads can be replaced, so they are revalidated after a week.
       { source: "/home/:file", headers: [{ key: "Cache-Control", value: week }] },
