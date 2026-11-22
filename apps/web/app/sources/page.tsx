@@ -7,7 +7,7 @@ import { Unavailable } from "@/components/ui";
 import AddSource from "@/components/AddSource";
 import { NATURE, NATURE_HELP } from "@/lib/ref";
 
-export const metadata: Metadata = pageMeta("Sources cited on the Sagat Singh Research Foundation site", "Every source cited on this site, classified as primary, oral history, family testimony, secondary research or tertiary, with a link to the original wherever one exists.", "/sources");
+export const metadata: Metadata = pageMeta("Sources cited on the Sagat Singh Research Foundation site", "Every source cited here, classified as primary, oral history, family testimony, secondary research or tertiary, with a link to the original where one exists.", "/sources");
 type SP = { searchParams: Promise<{ q?: string; nature?: string; sort?: string }> };
 const NATCOL: Record<string, string> = { "Primary source": "#762633", "Oral history": "#6b3f5e", "Family testimony": "#8C7438", "Secondary research": "#3d5a80", "Tertiary source": "#6a6a60" };
 

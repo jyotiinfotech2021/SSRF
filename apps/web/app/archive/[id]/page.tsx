@@ -18,7 +18,9 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const a = r.item, img = r.files.find((f) => f.contentType.startsWith("image/")); const thumb = img ? `/api/files/${img.id}` : (a.data as { thumb?: string }).thumb;
   const d = (a.description ?? "").replace(/\s+/g, " ").trim();
   const desc = (d.length >= 70 ? d : `${d} Catalogue record ${id}: ${a.category ?? "item"} in the ${a.collection ?? "SSRF digital archive"}, with its origin, credit and rights.`.trim()).slice(0, 158);
-  return pageMeta(`${a.title} (${id})`.slice(0, 70), desc, "/archive/" + id, thumb || undefined);
+  // Keep the whole <title> (including " | SSRF") within about 65 characters: drop the id when the title is long.
+  const full = `${a.title} (${id})`;
+  return pageMeta(full.length <= 56 ? full : a.title.length <= 56 ? a.title : a.title.slice(0, 55).replace(/\s+\S*$/, "") + "…", desc, "/archive/" + id, thumb || undefined);
 }
 
 export default async function ArchiveItemPage({ params }: Params) {

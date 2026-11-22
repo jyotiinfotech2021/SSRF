@@ -45,14 +45,14 @@ function Cover({ b, big, inner }: { b: Book; big?: boolean; inner?: boolean }) {
 function Meta({ b }: { b: Book }) {
   const d = b.data as D;
   const rows: [string, string | undefined][] = [["Author", byline(d)], ["Publisher", d.publisher !== byline(d) ? d.publisher : ""], ["Year", d.year], ["Type", LTYPE[b.kind ?? ""] || b.kind]];
-  return <dl className="lmeta">{rows.filter((r) => r[1]).map(([k, x]) => <span key={k} style={{ display: "contents" }}><dt>{k}</dt><dd>{x}</dd></span>)}</dl>;
+  return <dl className="lmeta">{rows.filter((r) => r[1]).map(([k, x]) => <div key={k} style={{ display: "contents" }}><dt>{k}</dt><dd>{x}</dd></div>)}</dl>;
 }
 
 function Card({ b, ed, signedIn }: { b: Book; ed: boolean; signedIn: boolean }) {
   const d = b.data as D, v = b.status === "verified";
   return (
     <article className={`lcard${v ? " verified" : ""}`} id={b.id}>
-      {d.link ? <a href={d.link} target="_blank" rel="noopener noreferrer" className="lcov-link" aria-label={`${lLinkLabel(b)}: ${T(b)}`}><Cover b={b} /></a> : <Cover b={b} />}
+      {d.link ? <a href={d.link} target="_blank" rel="noopener noreferrer" className="lcov-link"><Cover b={b} /></a> : <Cover b={b} />}
       <div className="lbody">
         <div className="lstat">{v ? <span className="lver">✓ Verified</span> : <span className="lchk">Being checked</span>}{(b.camps ?? []).map((c) => <span key={c} className="lcamp">{VCAMP[c] ?? c}</span>)}</div>
         <h3>{T(b)}</h3>
