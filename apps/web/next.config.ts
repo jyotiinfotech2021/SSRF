@@ -19,6 +19,9 @@ const nextConfig: NextConfig = {
         { key: "X-Content-Type-Options", value: "nosniff" },
         { key: "Referrer-Policy", value: "same-origin" },
         { key: "X-Frame-Options", value: "DENY" },
+        // The site is HTTPS-only on www: browsers should not try plain http again for a year. (No includeSubDomains.)
+        { key: "Strict-Transport-Security", value: "max-age=31536000" },
+        { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()" },
       ] },
       // Files named by a content id or hash never change, so browsers keep them for a year.
       { source: "/library/covers/:file", headers: [{ key: "Cache-Control", value: year }] },
