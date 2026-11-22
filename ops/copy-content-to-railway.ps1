@@ -5,10 +5,16 @@
 # cleared first, so run it on a fresh site (it asks before doing anything).
 param([string]$Url, [string]$HostPort, [string]$Local = "ssrf-pg-dev")
 $ErrorActionPreference = "Stop"
+if (-not $Url -and -not $HostPort -and $env:DATABASE_PUBLIC_URL) {
+  # Used with the Railway CLI:  railway run --service Postgres -- powershell -File ./ops/copy-content-to-railway.ps1
+  # Railway puts DATABASE_PUBLIC_URL into the environment itself, so nothing is copied or typed by hand.
+  $Url = $env:DATABASE_PUBLIC_URL
+}
 if (-not $Url -and $HostPort) {
   # Build the address from host:port and ask for the Postgres password privately (PGPASSWORD on the Postgres service).
   $sec = Read-Host "Postgres password (PGPASSWORD from Railway, input hidden)" -AsSecureString
   $pw = [System.Net.NetworkCredential]::new("", $sec).Password
+  Write-Host "Password received: $($pw.Trim().Length) characters (Railway's are normally 32 letters and digits)."
   $Url = "postgresql://postgres:" + [uri]::EscapeDataString($pw.Trim()) + "@" + $HostPort.Trim() + "/railway"
 }
 if (-not $Url) { throw "Give either -Url `"postgresql://...`" or -HostPort `"host:port`"." }
