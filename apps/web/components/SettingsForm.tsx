@@ -12,6 +12,7 @@ export default function SettingsForm({ initial }: { initial: Record<string, stri
     ["email", "Contact email", false], ["address", "Postal address", false],
     ["registration", "Registered as", false, "Trust or society, registration number"], ["dataOfficer", "Person responsible for personal data", false],
     ["social", "Social media (one per line: name | full web address)", true, "YouTube | https://www.youtube.com/@..."],
+    ["enrolled", "Members enrolled before the site opened (one chapter per line: chapter | number; any chapter left out counts 50)", true, "goa | 50\nrajasthan | 50\ndelhi | 50\npune-mumbai | 50\nbengaluru | 50\nnortheast | 50\noverseas | 50"],
   ];
   return (
     <form className="panel" onSubmit={async (e) => {

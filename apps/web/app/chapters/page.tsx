@@ -4,6 +4,7 @@ import { pageMeta } from "@/lib/seo";
 import { get, type Chapter, type Member, type EventItem, type Story, type ArchiveItem } from "@/lib/api";
 import { Unavailable, fmtDate } from "@/components/ui";
 import { INDIA, inP } from "@/lib/indiaMap";
+import { enrolledFor } from "@/lib/enrolled";
 
 export const metadata: Metadata = pageMeta("Regional chapters of the Sagat Singh Research Foundation", "Regional chapters of the foundation and what each is working on: local research, memorial registers, school outreach and oral-history collection.", "/chapters");
 
@@ -19,7 +20,8 @@ const LOC: Record<string, { place: string; lat?: number; lng?: number }> = {
 };
 
 export default async function Chapters() {
-  const [chapters, members, events, stories, archive] = await Promise.all([get<Chapter[]>("/api/chapters"), get<Member[]>("/api/members"), get<EventItem[]>("/api/events"), get<Story[]>("/api/stories"), get<ArchiveItem[]>("/api/archive")]);
+  const [chapters, members, events, stories, archive, site] = await Promise.all([get<Chapter[]>("/api/chapters"), get<Member[]>("/api/members"), get<EventItem[]>("/api/events"), get<Story[]>("/api/stories"), get<ArchiveItem[]>("/api/archive"), get<Record<string, { enrolled?: string }>>("/api/site")]);
+  const settings = site?.settings;
   const chs = [...(chapters ?? [])].sort((a, b) => (a.order || 99) - (b.order || 99));
   const today = new Date().toISOString().slice(0, 10);
   const stats = (c: Chapter) => {
@@ -29,7 +31,8 @@ export default async function Chapters() {
     const past = ev.filter((e) => (e.date ?? "") < today).sort((a, b) => String(b.date).localeCompare(String(a.date)));
     const st = (stories ?? []).filter((s) => s.authorId && ids.has(s.authorId) && s.status !== "rejected").length;
     const ar = (archive ?? []).filter((a) => a.authorId && ids.has(a.authorId)).length;
-    return { n: mem.length, up, past, st, ar };
+    // Members shown = those who enrolled before the site opened + those who joined here.
+    return { n: enrolledFor(settings, c) + mem.length, up, past, st, ar };
   };
   const all = chs.map((c) => ({ c, s: stats(c) }));
   const tot = all.reduce((t, x) => ({ n: t.n + x.s.n, ev: t.ev + x.s.up.length + x.s.past.length, st: t.st + x.s.st + x.s.ar }), { n: 0, ev: 0, st: 0 });
@@ -76,6 +79,7 @@ export default async function Chapters() {
             <div className="actions"><Link href={`/members?chapter=${encodeURIComponent(c.name)}`}>See members</Link></div>
           </article>))}
       </div>
+      <p className="meta">Member counts include people who enrolled with a chapter before this website opened, plus everyone who has joined here since.</p>
     </>
   );
 }
