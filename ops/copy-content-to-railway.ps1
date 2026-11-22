@@ -5,6 +5,12 @@
 # cleared first, so run it on a fresh site (it asks before doing anything).
 param([Parameter(Mandatory = $true)][string]$Url, [string]$Local = "ssrf-pg-dev")
 $ErrorActionPreference = "Stop"
+$Url = $Url.Trim().Trim('"').Trim("'")
+if ($Url -notmatch '^postgres(ql)?://[^@]+@[^:/]+:\d+/\S+$') {
+  $seen = $Url -replace '(://[^:/@]*:)[^@]*@', '${1}****@'
+  if ($seen.Length -gt 90) { $seen = $seen.Substring(0, 90) + "..." }
+  throw "That is not a full Postgres address. I received: [$seen] ($($Url.Length) characters). It must look like postgresql://postgres:PASSWORD@HOST.proxy.rlwy.net:PORT/railway. Copy DATABASE_PUBLIC_URL (not DATABASE_URL) and paste the real value, not the words PASTE_DATABASE_PUBLIC_URL_HERE."
+}
 $tables = "Campaigns", "Chapters", "Entities", "Places", "Sources", "Claims", "ClaimCitations", "Books", "Quiz", "Events", "Stories", "Site", "ArchiveItems", "LegacyRecords"
 $out = Join-Path $env:TEMP "ssrf-content.sql"
 
@@ -16,8 +22,6 @@ $trunc = "TRUNCATE " + (($tables | ForEach-Object { "`"$_`"" }) -join ", ") + " 
 Write-Host "Dumped $($tables.Count) tables to $out ($([math]::Round((Get-Item $out).Length/1KB)) KB)"
 
 if ((Read-Host "Replace the content on the Railway database now? (yes/no)") -ne "yes") { Write-Host "Stopped. Nothing was changed."; return }
-$Url = $Url.Trim().Trim('"').Trim("'")
-if ($Url -notmatch '^postgres(ql)?://[^@]+@[^:/]+:\d+/\S+$') { throw "That is not a full Postgres address. It must look like postgresql://user:password@host:port/railway (copy DATABASE_PUBLIC_URL, not DATABASE_URL)." }
 $env:SSRF_TARGET_URL = $Url
 docker run --rm -e SSRF_TARGET_URL -v "${out}:/c.sql:ro" postgres:17 sh -c 'psql "$SSRF_TARGET_URL" -v ON_ERROR_STOP=1 -f /c.sql'
 $env:SSRF_TARGET_URL = $null
