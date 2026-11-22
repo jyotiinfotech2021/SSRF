@@ -44,7 +44,6 @@ export default async function Members({ searchParams }: SP) {
   const [members, chapters, camps, who] = await Promise.all([get<Member[]>("/api/members"), get<Chapter[]>("/api/chapters"), get<Campaign[]>("/api/campaigns"), me()]);
   const all = members ?? [], cl = camps ?? [];
   const list = all.filter((m) => (!sp.grp || mgroup(m.category)[0] === sp.grp) && (!sp.chapter || m.chapter === sp.chapter)).sort((a, b) => a.name.localeCompare(b.name));
-  const gcount = (k: string) => all.filter((m) => mgroup(m.category)[0] === k).length;
   const filtered = !!(sp.grp || sp.chapter);
   const href = (grp?: string) => { const u = new URLSearchParams(); if (grp) u.set("grp", grp); if (sp.chapter) u.set("chapter", sp.chapter); const s = u.toString(); return "/members" + (s ? "?" + s : ""); };
   return (
@@ -56,7 +55,7 @@ export default async function Members({ searchParams }: SP) {
         <p className="alanding-stats"><b>{all.length}</b> listed {all.length === 1 ? "member" : "members"} · <b>{chapters?.length ?? 0}</b> chapters</p>
       </div></section>
       {!members && <Unavailable />}
-      <div className="mgroups">{MGROUPS.map(([k, l, c]) => <Link key={k} className={`mgrp${sp.grp === k ? " on" : ""}`} style={{ ["--mc" as string]: c }} href={href(sp.grp === k ? undefined : k)}><b>{l}</b><span>{gcount(k)}</span></Link>)}</div>
+      <div className="mgroups">{MGROUPS.map(([k, l, c]) => <Link key={k} className={`mgrp${sp.grp === k ? " on" : ""}`} style={{ ["--mc" as string]: c }} href={href(sp.grp === k ? undefined : k)}><b>{l}</b></Link>)}</div>
       <AutoForm className="bar" action="/members">
         {sp.grp && <input type="hidden" name="grp" value={sp.grp} />}
         <select name="chapter" defaultValue={sp.chapter ?? ""} aria-label="Chapter"><option value="">All chapters</option>{chapters?.map((c) => <option key={c.id}>{c.name}</option>)}</select>
