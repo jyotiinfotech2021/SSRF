@@ -3,8 +3,15 @@
 # Needs Docker running and the local container `ssrf-pg-dev`. Accounts, private member
 # data, submissions and revisions are NOT copied. Existing content rows on Railway are
 # cleared first, so run it on a fresh site (it asks before doing anything).
-param([Parameter(Mandatory = $true)][string]$Url, [string]$Local = "ssrf-pg-dev")
+param([string]$Url, [string]$HostPort, [string]$Local = "ssrf-pg-dev")
 $ErrorActionPreference = "Stop"
+if (-not $Url -and $HostPort) {
+  # Build the address from host:port and ask for the Postgres password privately (PGPASSWORD on the Postgres service).
+  $sec = Read-Host "Postgres password (PGPASSWORD from Railway, input hidden)" -AsSecureString
+  $pw = [System.Net.NetworkCredential]::new("", $sec).Password
+  $Url = "postgresql://postgres:" + [uri]::EscapeDataString($pw.Trim()) + "@" + $HostPort.Trim() + "/railway"
+}
+if (-not $Url) { throw "Give either -Url `"postgresql://...`" or -HostPort `"host:port`"." }
 $Url = $Url.Trim().Trim('"').Trim("'")
 if ($Url -notmatch '^postgres(ql)?://[^@]+@[^:/]+:\d+/\S+$') {
   $seen = $Url -replace '(://[^:/@]*:)[^@]*@', '${1}****@'
