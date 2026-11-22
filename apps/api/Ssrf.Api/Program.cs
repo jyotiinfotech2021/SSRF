@@ -8,8 +8,9 @@ using Ssrf.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var cs = builder.Configuration.GetConnectionString("Default")
-    ?? throw new InvalidOperationException("ConnectionStrings:Default is not configured (set ConnectionStrings__Default).");
+var cs = DeployEnv.ConnectionString(builder.Configuration);
+// Hosting platforms hand over the port to listen on as PORT.
+if (DeployEnv.Port(builder.Configuration) is { } listenPort) builder.WebHost.UseUrls($"http://+:{listenPort}");
 // One shared data source (= one connection pool) for the whole process.
 var dataSource = new NpgsqlDataSourceBuilder(cs).EnableDynamicJson().Build();
 builder.Services.AddSingleton(dataSource);

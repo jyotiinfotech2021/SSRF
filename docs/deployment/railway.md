@@ -9,12 +9,12 @@ New → Database → PostgreSQL. Railway creates variables such as `PGHOST`, `PG
 New → GitHub Repo → this repository, then in Settings:
 - **Root Directory:** `apps/api` (builder: Dockerfile, picked up from `railway.json`)
 - **Variables:**
-  - `ConnectionStrings__Default` = `Host=${{Postgres.PGHOST}};Port=${{Postgres.PGPORT}};Database=${{Postgres.PGDATABASE}};Username=${{Postgres.PGUSER}};Password=${{Postgres.PGPASSWORD}}` (use the database service's actual name instead of `Postgres` if it differs; Npgsql needs this key=value form, not `DATABASE_URL`)
+  - `DATABASE_URL` = `${{Postgres.DATABASE_URL}}` (use the database service's actual name instead of `Postgres` if it differs). The API converts the `postgres://` address itself; it also accepts `ConnectionStrings__Default` or the separate `PGHOST`/`PGPORT`/`PGDATABASE`/`PGUSER`/`PGPASSWORD` variables.
   - `Bootstrap__AdminEmail` = the administrator's address (the first account registered with it becomes Administrator)
   - `Site__Url` = `https://sagatsingh.org`
   - `ASPNETCORE_ENVIRONMENT` = `Production`
   - `Proxy__TrustForwardedHeaders` = `true`
-  - `PORT` = `8080`
+  - `PORT` = `8080` (the API listens on whatever `PORT` says; the default is 8080)
   - `RAILWAY_RUN_UID` = `0` (lets the app write to the volume below)
   - optional email: `Smtp__Host`, `Smtp__Port`, `Smtp__User`, `Smtp__Password`, `Smtp__From`
 - **Volume:** add a volume mounted at `/data/storage` (uploaded files).
@@ -33,4 +33,5 @@ From a machine with the current database: `pg_dump -Fc` it, then restore into Ra
 
 ## Notes
 - Railway bills by usage; a site this size is typically a few dollars a month on top of the base plan. The nightly backup container in `docker-compose.yml` is not used here: turn on the Postgres service's backups in Railway and keep a periodic `pg_dump`.
-- Health check: the API answers `/health`.
+- Health checks: the API answers `/health` and the website `/healthz`; both are already set in each app's `railway.json`.
+- Every variable, with an explanation, is listed in `apps/api/.env.example` and `apps/web/.env.example`.
