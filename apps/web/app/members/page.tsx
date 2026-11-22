@@ -52,7 +52,6 @@ export default async function Members({ searchParams }: SP) {
         <p className="eyebrow">SSRF Members</p>
         <h1>The foundation&apos;s members</h1>
         <p>Veterans, families, researchers, academics, students and supporters who work with the foundation and have chosen to be listed. Photographs appear only where a member has consented. Members who keep their profile private are not shown.</p>
-        <p className="alanding-stats"><b>{all.length}</b> listed {all.length === 1 ? "member" : "members"} · <b>{chapters?.length ?? 0}</b> chapters</p>
       </div></section>
       {!members && <Unavailable />}
       <div className="mgroups">{MGROUPS.map(([k, l, c]) => <Link key={k} className={`mgrp${sp.grp === k ? " on" : ""}`} style={{ ["--mc" as string]: c }} href={href(sp.grp === k ? undefined : k)}><b>{l}</b></Link>)}</div>
