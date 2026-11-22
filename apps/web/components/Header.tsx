@@ -17,7 +17,7 @@ function SearchBox({ id }: { id: string }) {
   );
 }
 
-export default function Header({ signedIn, editor }: { signedIn: boolean; editor: boolean }) {
+export default function Header({ signedIn, editor, admin = false }: { signedIn: boolean; editor: boolean; admin?: boolean }) {
   const path = usePathname() ?? "/";
   // The menu is open only for the page it was opened on, so it closes by itself on navigation.
   const [openAt, setOpenAt] = useState<string | null>(null);
@@ -49,6 +49,7 @@ export default function Header({ signedIn, editor }: { signedIn: boolean; editor
         <div className="hdr-actions">
           <SearchBox id="hq" />
           {editor && <Link href="/admin/review" className="hdr-link">Review</Link>}
+          {admin && <Link href="/admin/tools" className="hdr-link">Admin</Link>}
           {signedIn ? <Link href="/account" className="hdr-cta">My account</Link> : <><Link href="/login" className="hdr-link">Sign in</Link><Link href="/register" className="hdr-cta">Join</Link></>}
         </div>
       </div>

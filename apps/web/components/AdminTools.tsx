@@ -3,17 +3,34 @@ import { useState } from "react";
 import { call } from "@/lib/client";
 import { toast } from "./Toast";
 import { RIGHTS } from "@/lib/ref";
+import SettingsForm from "./SettingsForm";
 
 type U = { id: string; email: string; legacyUid?: string; roles: string[] };
 const ROLES = ["Admin", "Editor", "Contributor", "Member"];
+const ROLE_HELP: Record<string, string> = {
+  Admin: "Everything: accounts and roles, settings, backups, imports.",
+  Editor: "Reviews and approves contributions, corrections and requests.",
+  Contributor: "Can submit stories, library items, archive items and events for review.",
+  Member: "Has an account and a profile. Can suggest corrections.",
+};
 
-export default function AdminTools({ users, selfId }: { users: U[]; selfId: string }) {
+export default function AdminTools({ users, selfId, settings }: { users: U[]; selfId: string; settings: Record<string, string | undefined> }) {
   const [report, setReport] = useState<string>("");
+  const [find, setFind] = useState("");
+  const shown = users.filter((u) => !find.trim() || u.email.toLowerCase().includes(find.trim().toLowerCase()));
   return (
     <div>
-      <h2 className="sect">Accounts and roles</h2>
+      <nav className="adminjump" aria-label="On this page">
+        {[["accounts", "Accounts and roles"], ["settings", "Site settings"], ["import", "Import data"], ["backup", "Backups"], ["portrait", "Home-page portrait"]].map(([id, label]) => <a key={id} href={`#${id}`}>{label}</a>)}
+      </nav>
+
+      <h2 className="sect" id="accounts">Accounts and roles</h2>
+      <p className="meta">{users.length} {users.length === 1 ? "account" : "accounts"}. Tick a role to give it, untick to take it away; it saves at once. You cannot remove your own Admin role.</p>
+      <dl className="rolehelp">{ROLES.map((r) => <div key={r}><dt>{r}</dt><dd>{ROLE_HELP[r]}</dd></div>)}</dl>
+      <input className="qsearch" type="search" placeholder="Find an account by email" aria-label="Find an account by email" value={find} onChange={(e) => setFind(e.target.value)} />
       <table className="plain"><thead><tr><th>Email</th><th>Roles</th><th>Prototype id</th></tr></thead><tbody>
-        {users.map((u) => (
+        {shown.length === 0 && <tr><td colSpan={3} className="meta">No account matches.</td></tr>}
+        {shown.map((u) => (
           <tr key={u.id}>
             <td>{u.email}</td>
             <td>{ROLES.map((r) => (
@@ -26,7 +43,11 @@ export default function AdminTools({ users, selfId }: { users: U[]; selfId: stri
           </tr>))}
       </tbody></table>
 
-      <h2 className="sect">Import prototype data</h2>
+      <h2 className="sect" id="settings">Site settings</h2>
+      <p className="meta">The contact email, postal address, governing body and the numbers of members enrolled before the site opened (shown on the Chapters page). Changes appear on the public site within a couple of minutes.</p>
+      <SettingsForm initial={settings} />
+
+      <h2 className="sect" id="import">Import prototype data</h2>
       <p className="meta">Upload the JSON backup downloaded from the prototype (Database backup). Existing records are never overwritten; every source document is also kept verbatim in the legacy archive table.</p>
       <form onSubmit={async (e) => {
         e.preventDefault(); const f = new FormData(e.currentTarget).get("file");
@@ -39,11 +60,11 @@ export default function AdminTools({ users, selfId }: { users: U[]; selfId: stri
       </form>
       {report && <pre className="transcript">{report}</pre>}
 
-      <h2 className="sect">Backups</h2>
+      <h2 className="sect" id="backup">Backups</h2>
       <p className="meta">The JSON backup includes private member profiles: store it encrypted. Database-level backups and restore tests are described in docs/deployment.</p>
       <a className="btn small" href="/api/editorial/backup/json">Download JSON backup</a>
 
-      <h2 className="sect">Home-page portrait</h2>
+      <h2 className="sect" id="portrait">Home-page portrait</h2>
       <PortraitForm />
     </div>
   );

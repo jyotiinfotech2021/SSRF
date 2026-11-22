@@ -3,7 +3,7 @@ import { Big_Shoulders_Stencil, Source_Serif_4 } from "next/font/google";
 import "./ssrf.css";
 import "./extra.css";
 import Link from "next/link";
-import { me, isEditor, get, type Source } from "@/lib/api";
+import { me, isEditor, isAdmin, get, type Source } from "@/lib/api";
 import Header from "@/components/Header";
 import Toast from "@/components/Toast";
 import AnimatedFavicon from "@/components/AnimatedFavicon";
@@ -50,7 +50,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         ]} />
         <BreadcrumbLd site={SITE} />
         <a href="#main" className="skip">Skip to content</a>
-        <Header signedIn={!!who.id} editor={isEditor(who)} />
+        <Header signedIn={!!who.id} editor={isEditor(who)} admin={isAdmin(who)} />
         <main className="wrap" id="main" tabIndex={-1}>{children}</main>
         <footer id="siteFooter">
           <div className="wrap ft-wrap">
