@@ -21,11 +21,27 @@ if ($Url -notmatch '^postgres(ql)?://[^@]+@[^:/]+:\d+/\S+$') {
 $tables = "Campaigns", "Chapters", "Entities", "Places", "Sources", "Claims", "ClaimCitations", "Books", "Quiz", "Events", "Stories", "Site", "ArchiveItems", "LegacyRecords"
 $out = Join-Path $env:TEMP "ssrf-content.sql"
 
-$t = ($tables | ForEach-Object { "-t", "public.\`"$_\`"" })
-$dump = docker exec $Local pg_dump -U postgres -d ssrf --data-only --inserts --no-owner @t
-if ($LASTEXITCODE -ne 0) { throw "pg_dump failed" }
+# The dump is written to a file INSIDE the container and copied out as raw bytes. Never pipe it
+# through PowerShell: that re-encodes non-English text (Hindi, accents, dashes) and corrupts it.
+$tflags = ($tables | ForEach-Object { "-t 'public.`"$_`"'" }) -join " "
 $trunc = "TRUNCATE " + (($tables | ForEach-Object { "`"$_`"" }) -join ", ") + " CASCADE;"
-@("SET session_replication_role = replica;", $trunc, $dump) | Set-Content -Encoding utf8 $out
+$sh = @"
+set -e
+f=/tmp/ssrf-content.sql
+echo "SET client_encoding = 'UTF8';" > `$f
+echo "SET session_replication_role = replica;" >> `$f
+echo '$trunc' >> `$f
+pg_dump -U postgres -d ssrf --data-only --inserts --no-owner $tflags >> `$f
+"@
+$sh = $sh -replace "`r", ""
+$shFile = Join-Path $env:TEMP "ssrf-dump.sh"
+[IO.File]::WriteAllText($shFile, $sh, (New-Object Text.UTF8Encoding($false)))
+docker cp $shFile "${Local}:/tmp/ssrf-dump.sh"
+if ($LASTEXITCODE -ne 0) { throw "could not copy the helper into the container" }
+docker exec $Local sh /tmp/ssrf-dump.sh
+if ($LASTEXITCODE -ne 0) { throw "pg_dump failed" }
+docker cp "${Local}:/tmp/ssrf-content.sql" $out
+if ($LASTEXITCODE -ne 0) { throw "could not copy the dump out of the container" }
 Write-Host "Dumped $($tables.Count) tables to $out ($([math]::Round((Get-Item $out).Length/1KB)) KB)"
 
 if ((Read-Host "Replace the content on the Railway database now? (yes/no)") -ne "yes") { Write-Host "Stopped. Nothing was changed."; return }
