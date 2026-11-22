@@ -30,7 +30,15 @@ Write-Host "Dumped $($tables.Count) tables to $out ($([math]::Round((Get-Item $o
 
 if ((Read-Host "Replace the content on the Railway database now? (yes/no)") -ne "yes") { Write-Host "Stopped. Nothing was changed."; return }
 $env:SSRF_TARGET_URL = $Url
-docker run --rm -e SSRF_TARGET_URL -v "${out}:/c.sql:ro" postgres:17 sh -c 'psql "$SSRF_TARGET_URL" -v ON_ERROR_STOP=1 -f /c.sql'
+$log = Join-Path $env:TEMP "ssrf-import.log"
+$ErrorActionPreference = "Continue"
+docker run --rm -e SSRF_TARGET_URL -v "${out}:/c.sql:ro" postgres:17 sh -c 'psql "$SSRF_TARGET_URL" -v ON_ERROR_STOP=1 -f /c.sql' *> $log
+$code = $LASTEXITCODE
+$ErrorActionPreference = "Stop"
 $env:SSRF_TARGET_URL = $null
-if ($LASTEXITCODE -ne 0) { throw "Import failed. Check the message above." }
+if ($code -ne 0) {
+  Write-Host "---- what psql said (password hidden) ----" -ForegroundColor Yellow
+  (Get-Content $log | Where-Object { $_ -match "ERROR|FATAL|could not|timeout|refused|SSL|DETAIL|HINT|does not exist|permission" } | Select-Object -First 12) -replace '(://[^:/@\s]*:)[^@\s]*@', '${1}****@' | Write-Host
+  throw "Import failed (full output saved in $log). Send me the lines printed above."
+}
 Write-Host "Done. Reload the website."
