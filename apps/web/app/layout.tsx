@@ -42,10 +42,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en-IN" className={`${stencil.variable} ${serif.variable}`}>
       <body>
         <JsonLd data={[
-          { "@context": "https://schema.org", "@type": "Organization", "@id": `${SITE}/#organization`, name: SITE_NAME, alternateName: "SSRF", url: SITE, logo: `${SITE}/apple-icon.png`,
+          { "@context": "https://schema.org", "@type": "Organization", "@id": `${SITE}/#organization`, name: SITE_NAME, alternateName: ["SSRF", "SagatSingh.org"], url: SITE, logo: `${SITE}/apple-icon.png`,
             description: "A research foundation that preserves the evidence of Lt Gen Sagat Singh's career, researches his campaigns and makes that history usable by schools, researchers and the public.",
             ...(contact?.email ? { email: contact.email } : {}), ...(sameAs.length ? { sameAs } : {}) },
-          { "@context": "https://schema.org", "@type": "WebSite", "@id": `${SITE}/#website`, url: SITE, name: SITE_NAME, inLanguage: "en-IN", publisher: { "@id": `${SITE}/#organization` },
+          { "@context": "https://schema.org", "@type": "WebSite", "@id": `${SITE}/#website`, url: SITE, name: SITE_NAME, alternateName: ["SSRF", "SagatSingh.org"], inLanguage: "en-IN", publisher: { "@id": `${SITE}/#organization` },
             potentialAction: { "@type": "SearchAction", target: { "@type": "EntryPoint", urlTemplate: `${SITE}/search?q={search_term_string}` }, "query-input": "required name=search_term_string" } },
         ]} />
         <BreadcrumbLd site={SITE} />
