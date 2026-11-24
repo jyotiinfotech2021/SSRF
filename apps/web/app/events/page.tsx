@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { pageMeta } from "@/lib/seo";
+import { pageMeta, abs } from "@/lib/seo";
+import ShareBar from "@/components/ShareBar";
 import Link from "next/link";
 import { Suspense } from "react";
 import { get, me, canContribute, isEditor, type EventItem, type Campaign, type Chapter } from "@/lib/api";
@@ -43,6 +44,7 @@ export default async function Events({ searchParams }: SP) {
         {where && <div className="meta">{where}</div>}
         {e.description && <p className="body">{e.description}</p>}
         {d.link && <p><a href={d.link} target="_blank" rel="noopener noreferrer">More details</a></p>}
+        <div className="sharerow"><ShareBar url={abs(`/events#${e.id}`)} title={e.title} text={[fmtDay(e.date), where].filter(Boolean).join(" · ") + (e.description ? ". " + e.description : "")} /></div>
         {hasReport && (
           <div className="panel event-report">
             <b>Report</b>

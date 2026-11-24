@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { pageMeta } from "@/lib/seo";
+import { pageMeta, abs } from "@/lib/seo";
+import ShareBar from "@/components/ShareBar";
 import { get, me, canContribute, isEditor, type Book, type Campaign } from "@/lib/api";
 import { Unavailable, HistoryPanel } from "@/components/ui";
 import { englishTitle, usefulNote } from "@/lib/text";
@@ -30,7 +31,7 @@ function VCard({ b, big, ed, signedIn, camps }: { b: Book; big?: boolean; ed: bo
         {b.description && <p className="vdesc">{b.description}</p>}
         {usefulNote(b.verNote) && <p className="meta">{usefulNote(b.verNote)}</p>}
         <p className="vcredit">Original on <a href={d.link} target="_blank" rel="noopener noreferrer">{host || "source site"}</a>{d.creator || d.author ? `, by ${d.creator || d.author}` : ", credited to the channel that uploaded it"}. Views and credit stay with the creator.</p>
-        <div className="actions">{signedIn && <CorrectionBox target={`books/${b.id}`} title={title} />}</div>
+        <div className="actions"><ShareBar url={abs(`/videos#${b.id}`)} title={title} text={b.description ?? meta} />{signedIn && <CorrectionBox target={`books/${b.id}`} title={title} />}</div>
         <HistoryPanel target={`books/${b.id}`} />
         {ed && <div className="actions"><StatusForm col="books" id={b.id} status={b.status} note={b.verNote} /><DeleteButton col="books" id={b.id} label="Delete" confirmText="Delete this entry? It can be restored only from a backup." /></div>}
       </div>

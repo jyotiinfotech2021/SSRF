@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { pageMeta } from "@/lib/seo";
+import { pageMeta, abs } from "@/lib/seo";
+import ShareBar from "@/components/ShareBar";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { get, me, type Campaign, type Claim, type Entity, type Cite, type Story, type Book, type Place, type EventItem, type ArchiveItem, type Source } from "@/lib/api";
@@ -96,6 +97,7 @@ export default async function CampaignPage({ params }: Params) {
           <p className="cb-eye">Campaign {idx + 1} of {total}{d.era ? ` · ${String(d.era)}` : ""}</p>
           <h1 className="cb-title">{c.name}</h1>
           <p className="cb-lead">{text("lead")}</p>
+          <div className="sharerow"><ShareBar url={abs(`/campaigns/${id}`)} title={c.name} text={text("lead")} /></div>
           <dl className="cb-facts">{facts.filter((f) => f[1]).map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
         </div>
       </header>

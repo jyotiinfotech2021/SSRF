@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { pageMeta } from "@/lib/seo";
+import { pageMeta, abs } from "@/lib/seo";
+import ShareBar from "@/components/ShareBar";
 import { get, me, canContribute, isEditor, type Place, type Campaign } from "@/lib/api";
 import { HistoryPanel, Unavailable, Cites, sourceMap } from "@/components/ui";
 import ContributeForm from "@/components/ContributeForm";
@@ -49,7 +50,7 @@ function Card({ p, ed, signedIn, sources }: { p: Place; ed: boolean; signedIn: b
           </details>)}
         {(cites.length > 0 || d.source) && <details className="evdet"><summary className="link evbtn">Sources</summary><div className="evpanel">{cites.length ? <Cites cites={cites} sources={sources} /> : <p><a href={d.source} target="_blank" rel="noopener noreferrer">{d.source}</a></p>}</div></details>}
         <HistoryPanel target={`places/${p.id}`} />
-        <div className="actions">{mapUrl && <a href={mapUrl} target="_blank" rel="noopener noreferrer">Open in maps ↗</a>}{signedIn && <CorrectionBox target={`places/${p.id}`} title={p.title} />}</div>
+        <div className="actions"><ShareBar url={abs(`/recognition#${p.id}`)} title={p.title.split(" / ")[0].replace(/ (proposed)$/, "")} text={p.description || d.homeBlurb || ""} />{mapUrl && <a href={mapUrl} target="_blank" rel="noopener noreferrer">Open in maps ↗</a>}{signedIn && <CorrectionBox target={`places/${p.id}`} title={p.title} />}</div>
         {ed && <div className="actions"><StatusForm col="places" id={p.id} status={p.status} note={p.verNote} /><DeleteButton col="places" id={p.id} label="Delete" confirmText="Delete this entry? It can be restored only from a backup." /></div>}
       </div>
     </article>

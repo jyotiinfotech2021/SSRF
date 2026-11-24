@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { pageMeta, SITE } from "@/lib/seo";
+import { pageMeta, SITE, abs } from "@/lib/seo";
+import ShareBar from "@/components/ShareBar";
 import JsonLd from "@/components/JsonLd";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -28,6 +29,7 @@ export default async function StoryPage({ params }: Params) {
       <h1>{s.title}</h1>
       <p className="meta">{s.kind}{s.era ? ` · ${s.era}` : ""} · by {s.authorName} · {fmtDate(s.createdAt)}</p>
       <p className="tags"><MemberTag /> <NatureTag n={s.nature} /> <AssessTag k={s.assessment} /></p>
+      <div className="sharerow"><ShareBar url={abs(`/stories/${s.id}`)} title={s.title} text={(s.body ?? "").slice(0, 200)} /></div>
       <div className="prose">{(s.body ?? "").split(/\n+/).map((p, i) => <p key={i}>{p}</p>)}</div>
       {d.video && <p><a href={d.video} target="_blank" rel="noopener noreferrer">Watch the video</a></p>}
       <SaluteButton id={s.id} initial={!!mine?.includes(s.id)} count={count?.count ?? 0} signedIn={!!who.id} />

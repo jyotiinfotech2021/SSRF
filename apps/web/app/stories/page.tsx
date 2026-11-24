@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { pageMeta } from "@/lib/seo";
+import { pageMeta, abs } from "@/lib/seo";
+import ShareBar from "@/components/ShareBar";
 import Link from "next/link";
 import { Suspense } from "react";
 import { get, me, canContribute, isEditor, type Story, type Campaign } from "@/lib/api";
@@ -45,6 +46,7 @@ export default async function Stories({ searchParams }: SP) {
             <StoryBody body={s.body ?? ""} sources={d.sources} history={<HistoryPanel target={`stories/${s.id}`} />}>
               {d.video && <a href={d.video} target="_blank" rel="noopener noreferrer">Watch the video</a>}
               <SaluteButton id={s.id} initial={!!mine?.includes(s.id)} count={counts?.[s.id] ?? 0} signedIn={!!who.id} />
+              <ShareBar url={abs(`/stories/${s.id}`)} title={s.title} text={(s.body ?? "").slice(0, 200)} />
               {who.id ? <CorrectionBox target={`stories/${s.id}`} title={s.title} /> : <Link className="link quiet" href="/login?next=/stories">Suggest a correction</Link>}
               {editor && <><AssessSelect id={s.id} value={s.assessment ?? "unverified"} own={s.authorId === who.id} /><DeleteButton col="stories" id={s.id} label="Unpublish" confirmText="Unpublish this story? The contributor's submission and its history remain." /></>}
             </StoryBody>

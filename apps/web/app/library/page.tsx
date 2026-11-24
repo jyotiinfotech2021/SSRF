@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { pageMeta, SITE } from "@/lib/seo";
+import { pageMeta, SITE, abs } from "@/lib/seo";
+import ShareBar from "@/components/ShareBar";
 import JsonLd from "@/components/JsonLd";
 import Link from "next/link";
 import { get, me, canContribute, isEditor, type Book, type Campaign } from "@/lib/api";
@@ -59,7 +60,7 @@ function Card({ b, ed, signedIn }: { b: Book; ed: boolean; signedIn: boolean }) 
         <Meta b={b} />
         {b.description && <p className="ldesc">{b.description}</p>}
         {usefulNote(b.verNote) && <p className="meta">{usefulNote(b.verNote)}</p>}
-        <div className="lacts">{d.link && <a className="btn small" href={d.link} target="_blank" rel="noopener noreferrer">{lLinkLabel(b)} ↗</a>}{signedIn && <CorrectionBox target={`books/${b.id}`} title={T(b)} />}</div>
+        <div className="lacts">{d.link && <a className="btn small" href={d.link} target="_blank" rel="noopener noreferrer">{lLinkLabel(b)} ↗</a>}<ShareBar url={abs(`/library#${b.id}`)} title={T(b)} text={b.description ?? ""} />{signedIn && <CorrectionBox target={`books/${b.id}`} title={T(b)} />}</div>
         <HistoryPanel target={`books/${b.id}`} />
         {ed && <div className="actions"><StatusForm col="books" id={b.id} status={b.status} note={b.verNote} /><DeleteButton col="books" id={b.id} label="Delete" confirmText="Delete this entry? It can be restored only from a backup." /></div>}
       </div>
@@ -132,7 +133,7 @@ export default async function Library({ searchParams }: SP) {
               <h3>{T(b)}</h3><Meta b={b} />
               {b.description && <p className="ldesc">{b.description}</p>}
               {usefulNote(b.verNote) && <p className="meta">{usefulNote(b.verNote)}</p>}
-              <div className="lacts">{d.link && <a className="btn" href={d.link} target="_blank" rel="noopener noreferrer">{lLinkLabel(b)} ↗</a>}{signedIn && <CorrectionBox target={`books/${b.id}`} title={T(b)} />}</div>
+              <div className="lacts">{d.link && <a className="btn" href={d.link} target="_blank" rel="noopener noreferrer">{lLinkLabel(b)} ↗</a>}<ShareBar url={abs(`/library#${b.id}`)} title={T(b)} text={b.description ?? ""} />{signedIn && <CorrectionBox target={`books/${b.id}`} title={T(b)} />}</div>
               <HistoryPanel target={`books/${b.id}`} />
             </div>
           </section>); })}</>}

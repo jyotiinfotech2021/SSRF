@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { pageMeta, SITE } from "@/lib/seo";
+import { pageMeta, SITE, abs } from "@/lib/seo";
+import ShareBar from "@/components/ShareBar";
 import JsonLd from "@/components/JsonLd";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -38,6 +39,7 @@ export default async function ArchiveItemPage({ params }: Params) {
         ...(d.creator ? { creator: { "@type": "Person", name: d.creator } } : {}), ...(a.rights ? { copyrightNotice: a.rights } : {}),
         ...(a.access !== "Restricted" && files.find((f) => f.contentType.startsWith("image/")) ? { image: `${SITE}/api/files/${files.find((f) => f.contentType.startsWith("image/"))!.id}` } : {}) }} />
       <h1>{a.title}</h1>
+      <div className="sharerow"><ShareBar url={abs(`/archive/${a.id}`)} title={a.title} text={a.description ?? ""} /></div>
       <p className="tags"><StatusTag s={a.status} /> <NatureTag n={a.nature} /></p>
       {a.verNote && <p className="meta">{a.verNote}</p>}
       <dl className="aitem-facts">{facts.filter((f) => f[1]).map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
