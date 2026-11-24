@@ -5,6 +5,7 @@ import Link from "next/link";
 import { get, me, isEditor, type Claim } from "@/lib/api";
 import { AssessTag, Cites, HistoryPanel, CitePanel, sourceMap, Unavailable, Empty, fmtDate } from "@/components/ui";
 import CorrectionBox from "@/components/CorrectionBox";
+import PageShare from "@/components/PageShare";
 
 export const metadata: Metadata = pageMeta("Biography of Lt Gen Sagat Singh (1919–2001)", "The documented life of Lt Gen Sagat Singh as a timeline of ten milestones, from Bikaner to the Meghna crossing, each with its sources.", "/biography");
 
@@ -23,6 +24,7 @@ export default async function Biography({ searchParams }: { searchParams: Promis
         mainEntity: { "@type": "Person", "@id": `${SITE}/#subject`, name: SUBJECT.name, honorificPrefix: SUBJECT.honorificPrefix, honorificSuffix: SUBJECT.honorificSuffix, jobTitle: SUBJECT.jobTitle, birthDate: SUBJECT.birthDate, birthPlace: { "@type": "Place", name: SUBJECT.birthPlace }, deathDate: SUBJECT.deathDate, deathPlace: { "@type": "Place", name: SUBJECT.deathPlace } } }} />
       <h1 className="bio-title">Biography</h1>
       <p className="sub">His life in {life.length || "ten"} milestones. Every entry is sourced: open &quot;Sources&quot; under any entry to see them.</p>
+      <PageShare inline />
       {editor && <p className="meta"><Link className="link" href={research ? "/biography" : "/biography?research=1"}>{research ? "Hide research notes (show the public view)" : "Show research notes (editors only)"}</Link></p>}
       {!claims && <Unavailable />}
       {claims && !life.length && <Empty>No biography milestones have been published yet.</Empty>}

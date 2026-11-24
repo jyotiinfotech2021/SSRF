@@ -5,6 +5,7 @@ import "./extra.css";
 import Link from "next/link";
 import { me, isEditor, isAdmin, get, type Source } from "@/lib/api";
 import Header from "@/components/Header";
+import PageShare from "@/components/PageShare";
 import Toast from "@/components/Toast";
 import AnimatedFavicon from "@/components/AnimatedFavicon";
 import { Mark } from "@/components/Mark";
@@ -52,6 +53,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <a href="#main" className="skip">Skip to content</a>
         <Header signedIn={!!who.id} editor={isEditor(who)} admin={isAdmin(who)} />
         <main className="wrap" id="main" tabIndex={-1}>{children}</main>
+        <PageShare />
         <footer id="siteFooter">
           <div className="wrap ft-wrap">
             <div className="ft-brand">

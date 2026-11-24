@@ -443,3 +443,9 @@ a.acoll b, a.acoll span, a.atype { text-decoration: none; }
 .share-menu svg { flex: none; color: var(--muted); }
 @media (max-width: 480px) { .share-menu { position: fixed; left: .75rem; right: .75rem; top: auto; bottom: .75rem; max-height: 70vh; overflow: auto; } }
 .sharerow { display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; margin: var(--sp-2) 0; }
+
+/* "Share this page" strip above the footer on every public page */
+.pageshare { border-top: 1px solid var(--line); margin-top: var(--sp-6); padding: var(--sp-3) 0; background: var(--bg); }
+.pageshare .wrap { display: flex; align-items: center; justify-content: flex-start; gap: var(--sp-3); }
+.pageshare .share-menu { top: auto; bottom: calc(100% + .35rem); }
+@media (max-width: 480px) { .pageshare .share-menu { top: auto; bottom: .75rem; } }
