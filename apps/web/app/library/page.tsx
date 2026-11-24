@@ -135,7 +135,7 @@ export default async function Library({ searchParams }: SP) {
         </>
       ) : <>
         {feat.length > 0 && <><h2 className="sect">Featured publication</h2>{feat.map((b) => { const d = b.data as D; return (
-          <section className="lfeat" key={b.id}>
+          <section className="lfeat" key={b.id} id={b.id}>
             {d.link ? <a href={d.link} target="_blank" rel="noopener noreferrer" className="lcov-link"><Cover b={b} big /></a> : <Cover b={b} big />}
             <div className="lbody">
               <div className="lstat">{b.status === "verified" ? <span className="lver">✓ Verified</span> : <span className="lchk">Being checked</span>}<span className="lcamp">The standard biography</span></div>

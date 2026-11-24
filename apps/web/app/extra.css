@@ -449,3 +449,6 @@ a.acoll b, a.acoll span, a.atype { text-decoration: none; }
 .pageshare .wrap { display: flex; align-items: center; justify-content: flex-start; gap: var(--sp-3); }
 .pageshare .share-menu { top: auto; bottom: calc(100% + .35rem); }
 @media (max-width: 480px) { .pageshare .share-menu { top: auto; bottom: .75rem; } }
+
+/* A shared link jumps to a card: keep it clear of the sticky header */
+.lfeat[id], .lcard[id], .vcard[id], .rcard[id], .event-item[id], .story[id] { scroll-margin-top: 7rem; }
