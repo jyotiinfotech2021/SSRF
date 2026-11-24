@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { pageMeta, abs } from "@/lib/seo";
+import { pageMeta, abs, itemMeta } from "@/lib/seo";
 import ShareBar from "@/components/ShareBar";
 import { get, me, canContribute, isEditor, type Place, type Campaign } from "@/lib/api";
 import { HistoryPanel, Unavailable, Cites, sourceMap } from "@/components/ui";
@@ -11,7 +11,15 @@ import { assetUrl } from "@/lib/text";
 import { PKINDS } from "@/lib/ref";
 import { INDIA, inP } from "@/lib/indiaMap";
 
-export const metadata: Metadata = pageMeta("Recognition register: statues, memorials and honours", "Statues, busts, memorials, honours and observances recognising Lt Gen Sagat Singh, each with its source and a verification status.", "/recognition");
+/** /recognition?item=<id> shows that entry's title, summary and picture when the link is shared. */
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ item?: string }> }): Promise<Metadata> {
+  const { item } = await searchParams;
+  if (!item) return BASE;
+  const p = (await get<Place[]>("/api/places"))?.find((x) => x.id === item);
+  const d = (p?.data ?? {}) as { homeBlurb?: string; images?: { url: string }[] };
+  return itemMeta(BASE, "/recognition", p && { title: p.title.split(" / ")[0].replace(/ \(proposed\)$/, ""), description: p.description || d.homeBlurb || "", image: d.images?.[0] ? assetUrl(d.images[0].url) : undefined });
+}
+const BASE = pageMeta("Recognition register: statues, memorials and honours","Statues, busts, memorials, honours and observances recognising Lt Gen Sagat Singh, each with its source and a verification status.", "/recognition");
 type SP = { searchParams: Promise<{ state?: string; kind?: string; st?: string; place?: string }> };
 type PD = { source?: string; location?: string; city?: string; state?: string; district?: string; date?: string; inauguratedBy?: string; accessibility?: string; details?: string[]; cites?: { s: string; loc?: string }[]; images?: { url: string; caption?: string; wide?: boolean }[]; imagesNote?: string; homeBlurb?: string; featured?: boolean };
 
@@ -50,7 +58,7 @@ function Card({ p, ed, signedIn, sources }: { p: Place; ed: boolean; signedIn: b
           </details>)}
         {(cites.length > 0 || d.source) && <details className="evdet"><summary className="link evbtn">Sources</summary><div className="evpanel">{cites.length ? <Cites cites={cites} sources={sources} /> : <p><a href={d.source} target="_blank" rel="noopener noreferrer">{d.source}</a></p>}</div></details>}
         <HistoryPanel target={`places/${p.id}`} />
-        <div className="actions"><ShareBar url={abs(`/recognition#${p.id}`)} title={p.title.split(" / ")[0].replace(/ (proposed)$/, "")} text={p.description || d.homeBlurb || ""} />{mapUrl && <a href={mapUrl} target="_blank" rel="noopener noreferrer">Open in maps ↗</a>}{signedIn && <CorrectionBox target={`places/${p.id}`} title={p.title} />}</div>
+        <div className="actions"><ShareBar url={abs(`/recognition?item=${p.id}#${p.id}`)} title={p.title.split(" / ")[0].replace(/ (proposed)$/, "")} text={p.description || d.homeBlurb || ""} />{mapUrl && <a href={mapUrl} target="_blank" rel="noopener noreferrer">Open in maps ↗</a>}{signedIn && <CorrectionBox target={`places/${p.id}`} title={p.title} />}</div>
         {ed && <div className="actions"><StatusForm col="places" id={p.id} status={p.status} note={p.verNote} /><DeleteButton col="places" id={p.id} label="Delete" confirmText="Delete this entry? It can be restored only from a backup." /></div>}
       </div>
     </article>

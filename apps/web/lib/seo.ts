@@ -20,6 +20,18 @@ export function pageMeta(title: string, description: string, path: string, image
   };
 }
 
+/**
+ * For list pages whose items have no page of their own (videos, library, events, recognition): a link such as
+ * /videos?item=<id> gets that item's title, summary and picture in its preview card (WhatsApp, Facebook, LinkedIn),
+ * while the canonical address stays the list page, so search engines still see one page. Only an item that exists is
+ * ever used; anything else in the address is ignored.
+ */
+export function itemMeta(base: Metadata, path: string, item?: { title: string; description?: string; image?: string } | null): Metadata {
+  if (!item) return base;
+  const desc = (item.description ?? "").replace(/\s+/g, " ").trim().slice(0, 160);
+  return pageMeta(item.title.slice(0, 70), desc || String(base.description ?? ""), path, item.image || OG_DEFAULT);
+}
+
 /** Facts about the subject, taken from the biography entries on this site (each carries its own sources). */
 export const SUBJECT = {
   name: "Sagat Singh",

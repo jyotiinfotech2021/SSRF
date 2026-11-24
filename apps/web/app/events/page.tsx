@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { pageMeta, abs } from "@/lib/seo";
+import { pageMeta, abs, itemMeta } from "@/lib/seo";
 import ShareBar from "@/components/ShareBar";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -15,7 +15,14 @@ import { ETYPES } from "@/lib/ref";
 import JsonLd from "@/components/JsonLd";
 import { SITE } from "@/lib/seo";
 
-export const metadata: Metadata = pageMeta("Events and programmes: commemorations and research", "Commemorations, research events and public programmes about Lt Gen Sagat Singh, with reports, proceedings, photographs and press coverage for past events.", "/events");
+/** /events?item=<id> shows that event's title, date and summary when the link is shared. */
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ item?: string }> }): Promise<Metadata> {
+  const { item } = await searchParams;
+  if (!item) return BASE;
+  const e = (await get<EventItem[]>("/api/events"))?.find((x) => x.id === item);
+  return itemMeta(BASE, "/events", e && { title: e.title, description: [e.date ? fmtDay(e.date) : "", e.description ?? ""].filter(Boolean).join(". ") });
+}
+const BASE = pageMeta("Events and programmes: commemorations and research","Commemorations, research events and public programmes about Lt Gen Sagat Singh, with reports, proceedings, photographs and press coverage for past events.", "/events");
 type Media = { id: string; kind: string; fileId?: string; url?: string; caption?: string; credit?: string; ownerId: string };
 type SP = { searchParams: Promise<{ etype?: string; chapter?: string }> };
 
@@ -44,7 +51,7 @@ export default async function Events({ searchParams }: SP) {
         {where && <div className="meta">{where}</div>}
         {e.description && <p className="body">{e.description}</p>}
         {d.link && <p><a href={d.link} target="_blank" rel="noopener noreferrer">More details</a></p>}
-        <div className="sharerow"><ShareBar url={abs(`/events#${e.id}`)} title={e.title} text={[fmtDay(e.date), where].filter(Boolean).join(" · ") + (e.description ? ". " + e.description : "")} /></div>
+        <div className="sharerow"><ShareBar url={abs(`/events?item=${e.id}#${e.id}`)} title={e.title} text={[fmtDay(e.date), where].filter(Boolean).join(" · ") + (e.description ? ". " + e.description : "")} /></div>
         {hasReport && (
           <div className="panel event-report">
             <b>Report</b>

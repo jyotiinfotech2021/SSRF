@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { pageMeta, abs } from "@/lib/seo";
+import { pageMeta, abs, itemMeta } from "@/lib/seo";
+import { ytThumb } from "@/lib/yt";
 import ShareBar from "@/components/ShareBar";
 import { get, me, canContribute, isEditor, type Book, type Campaign } from "@/lib/api";
 import { Unavailable, HistoryPanel } from "@/components/ui";
@@ -11,7 +12,15 @@ import ContributeForm from "@/components/ContributeForm";
 import CorrectionBox from "@/components/CorrectionBox";
 import { StatusForm, DeleteButton } from "@/components/Interact";
 
-export const metadata: Metadata = pageMeta("Videos and lectures about Lt Gen Sagat Singh", "Documentaries, interviews, talks and commemorations about Lt Gen Sagat Singh, made by other people. Each card opens the original video and credits its creator.", "/videos");
+const BASE = pageMeta("Videos and lectures about Lt Gen Sagat Singh", "Documentaries, interviews, talks and commemorations about Lt Gen Sagat Singh, made by other people. Each card opens the original video and credits its creator.", "/videos");
+/** /videos?item=<id> shows that video's title, summary and thumbnail when the link is shared. */
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ item?: string }> }): Promise<Metadata> {
+  const { item } = await searchParams;
+  if (!item) return BASE;
+  const b = (await get<Book[]>("/api/books"))?.find((x) => x.id === item && x.kind === "Documentary or video");
+  const d = (b?.data ?? {}) as D;
+  return itemMeta(BASE, "/videos", b && { title: englishTitle(b.title, `Hindi-language video${d.publisher ? " from " + d.publisher : ""}`), description: b.description ?? "", image: ytThumb(d.link) || undefined });
+}
 type D = { author?: string; creator?: string; featureOrder?: number; publisher?: string; year?: string; link?: string; duration?: string; vtype?: string; featured?: boolean };
 const VTALK = new Set(["Interview", "Speech", "Talk or lecture", "Commemoration"]);
 const VCAMP: Record<string, string> = { goa: "Goa 1961", nathula: "Nathu La 1967", meghna: "1971 war" };
@@ -31,7 +40,7 @@ function VCard({ b, big, ed, signedIn, camps }: { b: Book; big?: boolean; ed: bo
         {b.description && <p className="vdesc">{b.description}</p>}
         {usefulNote(b.verNote) && <p className="meta">{usefulNote(b.verNote)}</p>}
         <p className="vcredit">Original on <a href={d.link} target="_blank" rel="noopener noreferrer">{host || "source site"}</a>{d.creator || d.author ? `, by ${d.creator || d.author}` : ", credited to the channel that uploaded it"}. Views and credit stay with the creator.</p>
-        <div className="actions"><ShareBar url={abs(`/videos#${b.id}`)} title={title} text={b.description ?? meta} />{signedIn && <CorrectionBox target={`books/${b.id}`} title={title} />}</div>
+        <div className="actions"><ShareBar url={abs(`/videos?item=${b.id}#${b.id}`)} title={title} text={b.description ?? meta} />{signedIn && <CorrectionBox target={`books/${b.id}`} title={title} />}</div>
         <HistoryPanel target={`books/${b.id}`} />
         {ed && <div className="actions"><StatusForm col="books" id={b.id} status={b.status} note={b.verNote} /><DeleteButton col="books" id={b.id} label="Delete" confirmText="Delete this entry? It can be restored only from a backup." /></div>}
       </div>

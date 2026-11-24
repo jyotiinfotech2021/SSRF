@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { pageMeta, SITE, abs } from "@/lib/seo";
+import { pageMeta, SITE, abs, itemMeta } from "@/lib/seo";
 import ShareBar from "@/components/ShareBar";
 import JsonLd from "@/components/JsonLd";
 import Link from "next/link";
@@ -11,7 +11,16 @@ import { usefulNote, englishTitle } from "@/lib/text";
 import CorrectionBox from "@/components/CorrectionBox";
 import { StatusForm, DeleteButton } from "@/components/Interact";
 
-export const metadata: Metadata = pageMeta("Library: books and articles about Lt Gen Sagat Singh", "Books, articles, official records and theses about Lt Gen Sagat Singh, each catalogued with its author, nature of source and verification status.", "/library");
+const BASE = pageMeta("Library: books and articles about Lt Gen Sagat Singh", "Books, articles, official records and theses about Lt Gen Sagat Singh, each catalogued with its author, nature of source and verification status.", "/library");
+/** /library?item=<id> shows that item's title, summary and cover when the link is shared. */
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ item?: string }> }): Promise<Metadata> {
+  const { item } = await searchParams;
+  if (!item) return BASE;
+  const b = (await get<Book[]>("/api/books"))?.find((x) => x.id === item);
+  const cover = (b?.data as { cover?: string } | undefined)?.cover ?? "";
+  const asset = /^\/_blob\/[0-9a-f]{32}$/.test(cover) ? cover.slice(7) : "";
+  return itemMeta(BASE, "/library", b && { title: T(b), description: b.description ?? "", image: asset ? `/library/covers/${asset}.jpg` : undefined });
+}
 type SP = { searchParams: Promise<{ q?: string; grp?: string; camp?: string; sort?: string; ver?: string }> };
 
 // Groups, labels and cover styles follow the prototype's Library.
@@ -60,7 +69,7 @@ function Card({ b, ed, signedIn }: { b: Book; ed: boolean; signedIn: boolean }) 
         <Meta b={b} />
         {b.description && <p className="ldesc">{b.description}</p>}
         {usefulNote(b.verNote) && <p className="meta">{usefulNote(b.verNote)}</p>}
-        <div className="lacts">{d.link && <a className="btn small" href={d.link} target="_blank" rel="noopener noreferrer">{lLinkLabel(b)} ↗</a>}<ShareBar url={abs(`/library#${b.id}`)} title={T(b)} text={b.description ?? ""} />{signedIn && <CorrectionBox target={`books/${b.id}`} title={T(b)} />}</div>
+        <div className="lacts">{d.link && <a className="btn small" href={d.link} target="_blank" rel="noopener noreferrer">{lLinkLabel(b)} ↗</a>}<ShareBar url={abs(`/library?item=${b.id}#${b.id}`)} title={T(b)} text={b.description ?? ""} />{signedIn && <CorrectionBox target={`books/${b.id}`} title={T(b)} />}</div>
         <HistoryPanel target={`books/${b.id}`} />
         {ed && <div className="actions"><StatusForm col="books" id={b.id} status={b.status} note={b.verNote} /><DeleteButton col="books" id={b.id} label="Delete" confirmText="Delete this entry? It can be restored only from a backup." /></div>}
       </div>
@@ -133,7 +142,7 @@ export default async function Library({ searchParams }: SP) {
               <h3>{T(b)}</h3><Meta b={b} />
               {b.description && <p className="ldesc">{b.description}</p>}
               {usefulNote(b.verNote) && <p className="meta">{usefulNote(b.verNote)}</p>}
-              <div className="lacts">{d.link && <a className="btn" href={d.link} target="_blank" rel="noopener noreferrer">{lLinkLabel(b)} ↗</a>}<ShareBar url={abs(`/library#${b.id}`)} title={T(b)} text={b.description ?? ""} />{signedIn && <CorrectionBox target={`books/${b.id}`} title={T(b)} />}</div>
+              <div className="lacts">{d.link && <a className="btn" href={d.link} target="_blank" rel="noopener noreferrer">{lLinkLabel(b)} ↗</a>}<ShareBar url={abs(`/library?item=${b.id}#${b.id}`)} title={T(b)} text={b.description ?? ""} />{signedIn && <CorrectionBox target={`books/${b.id}`} title={T(b)} />}</div>
               <HistoryPanel target={`books/${b.id}`} />
             </div>
           </section>); })}</>}
